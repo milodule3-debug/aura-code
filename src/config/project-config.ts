@@ -47,6 +47,14 @@ export interface ProjectConfig {
   profile?: 'local';
   /** Shadow-git checkpoints before mutating tool calls (default: true). */
   checkpoints?: boolean;
+  /** Ruby Principle small-model-first alternation layer. */
+  ruby?: {
+    enabled?: boolean;
+    modelName?: string;
+    ollamaBaseUrl?: string;
+    competenceThreshold?: number;
+    minAttempts?: number;
+  };
 }
 
 /**
@@ -93,6 +101,16 @@ function normalise(raw: unknown): ProjectConfig {
   if (typeof r.testCommand === 'string') out.testCommand = r.testCommand as string;
   if (r.profile === 'local') out.profile = 'local';
   if (r.checkpoints === true || r.checkpoints === false) out.checkpoints = r.checkpoints as boolean;
+  if (typeof r.ruby === 'object' && r.ruby !== null) {
+    const ruby = r.ruby as Record<string, unknown>;
+    out.ruby = {
+      enabled: typeof ruby.enabled === 'boolean' ? ruby.enabled : undefined,
+      modelName: typeof ruby.modelName === 'string' ? ruby.modelName : undefined,
+      ollamaBaseUrl: typeof ruby.ollamaBaseUrl === 'string' ? ruby.ollamaBaseUrl : undefined,
+      competenceThreshold: typeof ruby.competenceThreshold === 'number' ? ruby.competenceThreshold : undefined,
+      minAttempts: typeof ruby.minAttempts === 'number' ? ruby.minAttempts : undefined,
+    };
+  }
   if (Array.isArray(r.providers)) {
     out.providers = r.providers
       .filter((p: unknown): p is Record<string, unknown> =>

@@ -49,5 +49,12 @@
         { "id": "deepseek/deepseek-v4-pro", "name": "DeepSeek V4 Pro", "speed": "Powerful" }
       ]
     }
-  ]
+  ],
+  "ruby": {
+    "enabled": true,
+    "modelName": "qwen2.5-coder:1.5b",
+    "ollamaBaseUrl": "http://localhost:11434/v1",
+    "competenceThreshold": 0.7,
+    "minAttempts": 3
+  }
 }
