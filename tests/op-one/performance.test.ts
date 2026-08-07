@@ -37,7 +37,6 @@ const measurements: Array<{ what: string; value: string }> = [];
 
 function record(what: string, value: string) {
   measurements.push({ what, value });
-  // eslint-disable-next-line no-console
   console.log(`  ${what.padEnd(46)} ${value}`);
 }
 
@@ -179,7 +178,6 @@ describe('Aura OP One performance', () => {
   });
 
   it('prints the collected measurements', () => {
-    // eslint-disable-next-line no-console
     console.log('\n  — measured on this machine, fake engine, no network —');
     expect(measurements.length).toBeGreaterThan(0);
   });

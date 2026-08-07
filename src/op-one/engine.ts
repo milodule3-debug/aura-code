@@ -13,6 +13,17 @@
 
 import type { VerificationEvidence } from './types.js';
 
+// Static, unlike every other aura-code import in this file.
+//
+// Both are needed synchronously: `checkPermission` gates an action about to
+// happen, and `snapshotFiles` must capture the pre-execution file set in the
+// same tick as the decision to run. They are also the two cheapest modules on
+// the boundary — permissions pulls in readline, checks pulls in fs/path — so
+// loading them eagerly costs nothing worth deferring. Everything expensive
+// (providers, the agent loop, the terminal display) stays dynamic below.
+import { PermissionSystem } from '../safety/permissions.js';
+import { collectProjectFiles } from '../verify/checks.js';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Requests and results
 // ─────────────────────────────────────────────────────────────────────────────
@@ -183,19 +194,10 @@ export interface AuraCodeEngineOptions {
  */
 export function createAuraCodeEngine(opts: AuraCodeEngineOptions = {}): Engine {
   const permissionLevel = opts.permissionLevel ?? 'normal';
-  let permissions: { check(t: string, i: Record<string, unknown>): { allowed: boolean; reason?: string; needsConfirmation?: boolean } } | undefined;
 
-  async function getPermissions() {
-    if (!permissions) {
-      const { PermissionSystem } = await import('../safety/permissions.js');
-      permissions = new PermissionSystem(permissionLevel);
-    }
-    return permissions;
-  }
-
-  // Permission checks must be synchronous at the call site (they gate an action
-  // about to happen), so the system is primed on first async use and cached.
-  void getPermissions();
+  // Ready before the first check, so there is no window in which an early
+  // permission check fails closed and spuriously denies legitimate work.
+  const permissions = new PermissionSystem(permissionLevel);
 
   return {
     async run(req: EngineRunRequest): Promise<EngineRunResult> {
@@ -292,12 +294,10 @@ export function createAuraCodeEngine(opts: AuraCodeEngineOptions = {}): Engine {
     },
 
     checkPermission(tool: string, input: Record<string, unknown>): PermissionOutcome {
-      if (!permissions) {
-        // Permission system not yet primed — fail closed rather than allowing.
-        return { allowed: false, reason: 'permission system not ready' };
-      }
       const r = permissions.check(tool, input);
-      return { allowed: r.allowed, needsConfirmation: r.needsConfirmation, reason: r.reason };
+      // aura-code names this `needsConfirm`; the client's vocabulary is
+      // `needsConfirmation`. Translating at the seam is the point of the seam.
+      return { allowed: r.allowed, needsConfirmation: r.needsConfirm, reason: r.reason };
     },
 
     async resolveModel(req: ResolveModelRequest): Promise<ResolvedModel> {
@@ -393,13 +393,12 @@ export function createAuraCodeEngine(opts: AuraCodeEngineOptions = {}): Engine {
     snapshotFiles(projectRoot: string): Set<string> {
       // Synchronous by necessity: the snapshot must be taken before execution
       // starts, in the same tick as the decision to run.
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { collectProjectFiles } = require('../verify/checks.js');
-        return collectProjectFiles(projectRoot);
-      } catch {
-        return new Set<string>();
-      }
+      //
+      // A missing or unreadable root yields an empty set rather than throwing —
+      // the gate then simply treats every file as new, which is conservative.
+      // Note this is the ONLY reason this returns empty; a failure to load the
+      // collector would be a wiring bug and must not be swallowed here.
+      return collectProjectFiles(projectRoot);
     },
   };
 }
