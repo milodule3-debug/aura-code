@@ -126,6 +126,71 @@ Tests in `tests/`, run under Vitest (`vitest.config.ts`).
 
 ---
 
+## Aura OP One (`src/op-one/`) — the minimal client
+
+A second, separate product living in this tree: **Aura OP One**, the minimal
+personal and agentic client. Shell command **`opone`** (binary
+`dist/op-one/cli.js`). Full design: `AURA_OP_ONE_ARCHITECTURE.md`.
+
+Canonical loop: *request → retrieve experience → select agent/model → act →
+verify → record episode → improve future routing*.
+
+**It is a client, not a second engine.** Execution, tools, providers, the
+verification gate, permissions and credentials all stay in aura-code.
+
+### The one rule that matters here
+
+`src/op-one/engine.ts` is the **only** file in `src/op-one/` allowed to import
+aura-code internals (`../agent/`, `../verify/`, `../archimedes/`, `../safety/`,
+`../providers/`, `../cli/`). Everything else depends on the `Engine` interface.
+
+If you need a new aura-code capability in the client, **add a method to `Engine`
+and implement it in `engine.ts`** — do not import across the boundary from
+`session.ts`, `memory.ts`, `commands.ts` or anywhere else. That seam is what
+keeps the client thin and what makes the planned extraction into a standalone
+`aura-op-one` repo mechanical. `tests/op-one/fake-engine.ts` substitutes for it,
+so breaking the rule also breaks the tests' ability to run without a provider.
+
+### Invariants — do not weaken these
+
+- `verified` is reachable **only** from `verification_pending`, and only when the
+  gate approved. A gate that throws yields `escalated`, never a pass. Never
+  display or store `verified` for output the gate did not approve.
+- Verified engineering experience outranks unverified conversation by a
+  *dominating tier* in `memory.ts`, not a weight. Do not "rebalance" those into
+  comparable numbers.
+- `knowledgeStore` accepts **verified items only**; it throws otherwise.
+- Agent Mesh is off by default in config *and* in code (the default transport is
+  never available). Mesh-reported actions are re-checked locally before counting
+  as evidence.
+- Commits need verification **and** explicit user approval. There is no
+  auto-commit path, and `confirm` defaults to refusing.
+- Anything bound for a store, a log, or the UI goes through `redactSecrets` /
+  `redactValue` first.
+
+### Working on it
+
+```bash
+npx vitest run tests/op-one          # the client's own suite
+node dist/op-one/cli.js --help       # after npm run build
+AURA_OP_ONE_DIR=/tmp/x node dist/op-one/cli.js   # isolate its stores
+```
+
+Storage is six **separate** categories under `~/.aura/op-one/` (conversations,
+preferences, agents, knowledge, episodes) plus in-memory scratch. Do not merge
+them into one store — the separation is what makes memory scoping enforceable.
+Override the root with `AURA_OP_ONE_DIR`; always set it in tests.
+
+The default screen shows only conversation, active agent, active model,
+verification state, and `:help`. No graphs, dashboards, telemetry, or routing
+internals — that surface belongs to aura-pulse.
+
+Deferred on purpose (see §13): autonomous agent generation, dashboards,
+background autonomous operation, auto fine-tuning, a vector DB, a second
+verification system, a second orchestration engine.
+
+---
+
 ## Notes for agents in this repo
 
 - `dist/` compiled from `src/` — edit `src/`.

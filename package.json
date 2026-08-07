@@ -5,7 +5,7 @@
   "bin": {
     "aura": "dist/cli/index.js",
     "dic": "dist/cli/dic.js",
-    "aura-op-one": "dist/op-one/cli.js"
+    "opone": "dist/op-one/cli.js"
   },
   "main": "./dist/cli/index.js",
   "files": [

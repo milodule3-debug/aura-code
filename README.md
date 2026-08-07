@@ -34,6 +34,29 @@ export DEEPSEEK_API_KEY=sk-...
 aura 'refactor the auth module to use JWT'
 ```
 
+### Aura OP One — the minimal client
+
+The same install also provides **`opone`**, a quiet conversational client over
+the same engine. Where `aura` takes one task and runs it, `opone` holds a
+persistent conversation with memory, a chosen agent, and a visible verification
+state:
+
+```bash
+opone
+```
+
+```
+· Default  ·  local-first  ·  unverified
+› :status
+```
+
+The screen shows only the conversation, the active agent, the active model and
+the verification state. Everything else sits behind `:agent`, `:model`,
+`:council`, `:mesh`, `:verify`, `:memory`, `:status`, `:help`. Its stores live
+under `~/.aura/op-one/` (override with `AURA_OP_ONE_DIR`).
+
+Design and boundaries: [`AURA_OP_ONE_ARCHITECTURE.md`](AURA_OP_ONE_ARCHITECTURE.md).
+
 ---
 
 ## Features

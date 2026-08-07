@@ -289,6 +289,13 @@ Implemented:
 
 Commands: `:agent`, `:model`, `:council`, `:mesh`, `:verify`, `:memory`, `:status`, `:help`.
 
+**Invocation.** The shell command is **`opone`**. This is deliberately *not* `aura-op-one`
+and deliberately not prefixed `aura`: the client sits beside `aura` in the same `PATH`,
+and a name that only differs by a suffix invites typing the wrong one — the two have
+different permission postures, so picking the wrong binary is not a harmless mistake.
+The product name, repository and package/application id all remain `aura-op-one`; only
+the binary is short. Run it as `opone` (see the README quickstart).
+
 **Repository placement.** The target repository is `aura-op-one`; the MVP lives in the
 `aura-code` tree under `src/op-one/` because a standalone repo today would require
 either vendoring `aura-code` or publishing its internals — the first is an explicit
