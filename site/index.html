@@ -4,263 +4,543 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Aura Code — Autonomous Coding Agent</title>
-<meta name="description" content="Aura Code — an open-source, model-agnostic autonomous coding agent. She reads, plans, executes, verifies, and reports.">
+<meta name="description" content="Aura Code — an open-source, model-agnostic autonomous coding agent. She reads, plans, executes, verifies, and reports. Six memory layers, one running context.">
+<meta name="theme-color" content="#fbf6ea">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0a1020;           /* deep navy night */
-    --ink2:#101a2c;
-    --blue:#6ed0ea;          /* aura cyan */
-    --blue-soft:#9fdcec;
-    --blue-hot:#cdf0f8;
-    --terra:#b5674c;         /* plaster terracotta from the art */
-    --terra-deep:#8f4a33;
-    --copper:#d98e63;
-    --cream:#eaf1f7;
-    --cream-dim:#aebccd;
-    --glow:#ffc08a;          /* crystal light (kept for the art side) */
-    --glow-hot:#ffe3bd;
-    --ruby:#d24b30;
-    --mono:'IBM Plex Mono',monospace;
-    --serif:'Cormorant Garamond',serif;
-    --sans:'Space Grotesk',system-ui,sans-serif;
+    /* ————— marble, sun and sea. The whole page is lit from the left,
+             the way the temple in the hero is. ————— */
+    --marble:#fbf6ea;        /* the page itself: sunlit stone */
+    --marble-2:#f4ebd9;
+    --marble-3:#e9dcc2;
+    --ink:#233642;           /* body text: wet slate, never pure black */
+    --ink-2:#4c6272;
+    --ink-3:#7d8f9b;
+    --aegean:#12708f;        /* the sea at depth */
+    --aegean-deep:#0b4f68;
+    --aegean-night:#0a2f42;  /* the two dark bands */
+    --sea:#1f9ab6;
+    --sea-light:#6ccdd8;
+    --gold:#b0873c;          /* gilding, meanders, rules */
+    --gold-light:#e0b869;
+    --terracotta:#b5432b;    /* roof tile, and every call to action */
+    --terracotta-deep:#8b2f1c;
+    --olive:#5f7a3f;
+    --porphyry:#78304a;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --serif:'Cormorant Garamond','GFS Didot',Georgia,'Times New Roman',serif;
+    --inscr:'Cinzel','Cormorant Garamond',Georgia,serif;
+    --sans:'Space Grotesk',system-ui,-apple-system,sans-serif;
   }
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{background:var(--ink);color:var(--cream);font-family:var(--sans);line-height:1.65;overflow-x:hidden;font-weight:300}
-  ::selection{background:var(--ruby);color:var(--glow-hot)}
+  body{background:var(--marble);color:var(--ink);font-family:var(--sans);line-height:1.68;
+    overflow-x:hidden;font-weight:300;-webkit-font-smoothing:antialiased}
+  ::selection{background:var(--gold-light);color:#2a1c06}
   a{color:inherit}
+  img{max-width:100%;display:block}
 
-  /* ————— the breath: every glow on the page inhales & exhales on this rhythm ————— */
-  @keyframes breathe{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:1;transform:scale(1.03)}}
-  @keyframes breatheSoft{0%,100%{opacity:.25}50%{opacity:.7}}
-  @keyframes heroDrift{0%,100%{transform:scale(1.02) translateY(0)}50%{transform:scale(1.07) translateY(-1.2%)}}
+  /* ————— motion. Nothing here strobes; the page breathes like heat off stone ————— */
+  @keyframes sunBreathe{0%,100%{opacity:.4}50%{opacity:.85}}
+  @keyframes drift{0%,100%{transform:scale(1.03) translate3d(0,0,0)}50%{transform:scale(1.07) translate3d(-1%,-1.2%,0)}}
   @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
-  @keyframes bob{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:.85;transform:translateY(7px)}}
+  @keyframes bob{0%,100%{opacity:.35;transform:translateY(0)}50%{opacity:.9;transform:translateY(7px)}}
   @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
-  @keyframes ringPulse{0%{box-shadow:0 0 0 0 rgba(110,208,234,.45)}70%{box-shadow:0 0 0 14px rgba(110,208,234,0)}100%{box-shadow:0 0 0 0 rgba(110,208,234,0)}}
   @keyframes lineGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-  @keyframes crystalPulse{0%,100%{opacity:.22;transform:translate(-50%,-50%) scale(.85)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.18)}}
-  @keyframes rubyReact{0%,32%{opacity:.18;transform:translate(-50%,-50%) scale(.9)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.32)}74%{opacity:.5;transform:translate(-50%,-50%) scale(1.05)}100%{opacity:.18;transform:translate(-50%,-50%) scale(.9)}}
-  @keyframes rubyFlareOnce{0%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}35%{opacity:1;transform:translate(-50%,-50%) scale(1.7)}100%{opacity:.2;transform:translate(-50%,-50%) scale(.9)}}
+  @keyframes glowRing{0%{box-shadow:0 0 0 0 rgba(176,135,60,.4)}70%{box-shadow:0 0 0 15px rgba(176,135,60,0)}100%{box-shadow:0 0 0 0 rgba(176,135,60,0)}}
 
-  /* grain — plaster texture over everything, like the painting.
-     NOTE: no mix-blend-mode here — a viewport-fixed blended layer corrupts
-     Chrome's rasterizer on this page (everything below ~2600px paints black). */
-  body::after{content:"";position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.04;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  /* paper grain over the whole page, so the marble is stone and not a screen.
+     NOTE: no mix-blend-mode and no CSS filter anywhere on this page — a
+     viewport-fixed blended or filtered layer corrupts Chrome's rasterizer
+     here and everything below ~2600px paints as flat background. */
+  body::after{content:"";position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
-  /* ember/orb particles + click sparkles + cursor aura */
-  #embers{position:fixed;inset:0;z-index:1;pointer-events:none}
+  #motes{position:fixed;inset:0;z-index:1;pointer-events:none}
   #sparks{position:fixed;inset:0;z-index:40;pointer-events:none}
-  #cursorAura{position:fixed;z-index:2;width:560px;height:560px;margin:-280px 0 0 -280px;left:50%;top:40%;pointer-events:none;
-    background:radial-gradient(circle,rgba(110,208,234,.11),rgba(157,220,236,.05) 40%,transparent 70%);border-radius:50%;
-    transition:opacity .6s;will-change:transform}
+  #sunAura{position:fixed;z-index:2;width:620px;height:620px;margin:-310px 0 0 -310px;left:50%;top:40%;
+    pointer-events:none;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,214,140,.16),rgba(255,232,190,.07) 42%,transparent 70%);
+    will-change:transform}
+
+  /* ————— the Greek key. One tile is a square spiral on a rail; repeated,
+           it is the meander that runs round every Greek building ————— */
+  .meander{height:30px;background-repeat:repeat-x;background-size:auto 30px;opacity:.55;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='30' viewBox='0 0 34 30'%3E%3Cg fill='none' stroke='%23b0873c' stroke-width='2.6'%3E%3Cpath d='M5 23V6h19v12h-9v-6h5'/%3E%3Cpath d='M0 27.6h34'/%3E%3C/g%3E%3C/svg%3E")}
 
   /* ————— nav ————— */
-  .topnav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;flex-wrap:wrap;gap:1.5rem;align-items:center;justify-content:center;
-    padding:.95rem 2rem;font-family:var(--mono);font-size:.76rem;letter-spacing:.07em;
-    background:transparent;border-bottom:1px solid transparent;transition:background .5s,border-color .5s,backdrop-filter .5s}
-  .topnav.scrolled{background:rgba(10,16,32,.82);backdrop-filter:blur(14px);border-bottom:1px solid rgba(110,208,234,.16)}
-  .topnav a{text-decoration:none;color:var(--cream-dim);padding:.35rem .15rem;border-bottom:1px solid transparent;transition:color .25s,border-color .25s,text-shadow .25s}
-  .topnav a:hover{color:var(--blue-hot);border-color:var(--blue);text-shadow:0 0 18px rgba(110,208,234,.6)}
-  .topnav .brand{color:var(--blue);font-weight:500;letter-spacing:.22em;margin-right:.6rem;position:relative}
-  .topnav .brand::after{content:"";position:absolute;left:50%;top:50%;width:2.6rem;height:2.6rem;transform:translate(-50%,-50%);border-radius:50%;
-    background:radial-gradient(circle,rgba(110,208,234,.24),transparent 70%);animation:breatheSoft 5.2s ease-in-out infinite;pointer-events:none}
+  .topnav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;flex-wrap:wrap;gap:1.5rem;
+    align-items:center;justify-content:center;padding:.95rem 2rem;
+    font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;
+    background:transparent;border-bottom:1px solid transparent;
+    transition:background .5s,border-color .5s,backdrop-filter .5s}
+  .topnav.scrolled{background:rgba(251,246,234,.9);backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(176,135,60,.3);box-shadow:0 8px 30px rgba(60,40,10,.07)}
+  .topnav a{text-decoration:none;color:var(--ink-2);padding:.35rem .15rem;
+    border-bottom:1px solid transparent;transition:color .25s,border-color .25s}
+  .topnav a:hover{color:var(--terracotta);border-color:var(--gold)}
+  .topnav .brand{font-family:var(--inscr);font-size:.86rem;color:var(--ink);font-weight:600;
+    letter-spacing:.2em;margin-right:.5rem}
 
   /* ————— hero ————— */
-  header.hero{position:relative;min-height:100vh;min-height:100svh;display:grid;grid-template-columns:1.02fr .98fr;align-items:stretch;
-    background:
-      radial-gradient(ellipse 75% 60% at 24% 38%,rgba(110,208,234,.10),transparent 62%),
-      radial-gradient(ellipse 50% 45% at 78% 60%,rgba(255,150,90,.08),transparent 70%),
-      var(--ink);
-    z-index:3;overflow:hidden}
-  .hero-text{display:flex;flex-direction:column;justify-content:center;padding:14vh 3.5vw 10vh 7vw;position:relative;z-index:4}
-  .kicker{font-family:var(--mono);font-size:.72rem;letter-spacing:.36em;text-transform:uppercase;color:var(--blue);margin-bottom:2.2rem;display:flex;align-items:center;gap:.9rem}
-  .kicker::before{content:"";width:2.4rem;height:1px;background:linear-gradient(90deg,var(--blue),transparent);display:inline-block}
-  h1{font-family:var(--serif);font-weight:500;font-size:clamp(3.4rem,8vw,7rem);line-height:.94;letter-spacing:.015em;margin-bottom:1.4rem;
-    background:linear-gradient(100deg,var(--cream) 20%,var(--blue-hot) 40%,var(--blue) 50%,var(--blue-hot) 60%,var(--cream) 80%);
+  header.hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:center;
+    overflow:hidden;background:var(--marble);z-index:3}
+  .hero-art{position:absolute;inset:0;z-index:0;overflow:hidden}
+  .hero-art img{position:absolute;inset:-4%;width:108%;height:108%;object-fit:cover;
+    object-position:62% 52%;animation:drift 22s ease-in-out infinite;will-change:transform}
+  /* the veil: marble poured across the left so the type has stone to sit on */
+  .hero-art::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(97deg,var(--marble) 0%,rgba(251,246,234,.97) 26%,rgba(251,246,234,.72) 44%,rgba(251,246,234,.12) 62%,transparent 76%),
+               linear-gradient(0deg,rgba(251,246,234,.92) 0%,transparent 34%)}
+  .hero-inner{position:relative;z-index:4;padding:11rem 7vw 8rem;max-width:60rem;width:100%}
+  .kicker{font-family:var(--mono);font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:1.8rem;display:flex;align-items:center;gap:.9rem}
+  .kicker::before{content:"";width:2.4rem;height:1px;background:var(--gold);display:inline-block}
+  h1{font-family:var(--inscr);font-weight:600;font-size:clamp(3rem,8.5vw,7rem);line-height:.96;
+    letter-spacing:.03em;margin-bottom:.4rem;color:var(--ink);
+    background:linear-gradient(100deg,var(--ink) 26%,#3d5f6f 44%,var(--aegean) 52%,#3d5f6f 60%,var(--ink) 78%);
     background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
-    animation:shimmer 9s linear infinite}
-    /* no filter here: any CSS filter on this page corrupts Chrome's rasterizer
-       below ~2600px (content paints as flat background). Glow comes from the
-       .hero radial-gradient backdrop instead. */
-  .tagline{font-family:var(--serif);font-style:italic;font-size:clamp(1.45rem,2.7vw,2.2rem);color:var(--blue);margin-bottom:1.8rem}
-  .tagline .cursor{display:inline-block;width:.55ch;color:var(--blue-hot);animation:blink 1.1s steps(1) infinite;font-style:normal}
-  .lede{max-width:30rem;font-size:1.06rem;color:var(--cream-dim);margin-bottom:2.5rem}
-  .lede strong{color:var(--cream);font-weight:400}
+    animation:shimmer 11s linear infinite}
+  .greek{font-family:var(--serif);font-size:clamp(1.05rem,2vw,1.4rem);letter-spacing:.16em;
+    color:var(--gold);margin-bottom:1.5rem}
+  .tagline{font-family:var(--serif);font-style:italic;font-size:clamp(1.5rem,2.9vw,2.3rem);
+    color:var(--aegean-deep);margin-bottom:1.5rem;line-height:1.25}
+  .tagline .cursor{display:inline-block;width:.5ch;color:var(--terracotta);
+    animation:blink 1.1s steps(1) infinite;font-style:normal}
+  .lede{max-width:33rem;font-size:1.06rem;color:var(--ink-2);margin-bottom:2.4rem}
+  .lede strong{color:var(--ink);font-weight:500}
   .cta-row{display:flex;gap:1rem;flex-wrap:wrap;align-items:center}
-  .btn{font-family:var(--mono);font-size:.84rem;letter-spacing:.04em;text-decoration:none;padding:.95rem 1.8rem;border-radius:8px;
-    background:linear-gradient(140deg,var(--ruby),var(--terra-deep));color:var(--glow-hot);font-weight:500;border:1px solid rgba(255,192,138,.25);
-    cursor:pointer;display:inline-block;position:relative;z-index:0;transition:transform .3s,box-shadow .3s;
-    box-shadow:0 6px 26px rgba(210,75,48,.28)}
-  .btn::after{content:"";position:absolute;inset:-8px;border-radius:14px;z-index:-1;pointer-events:none;
-    background:radial-gradient(ellipse at center,rgba(255,140,90,.4),transparent 72%);
-    animation:breatheSoft 4.6s ease-in-out infinite}
-  .btn:hover{transform:translateY(-3px);box-shadow:0 16px 44px rgba(210,75,48,.5),0 0 30px rgba(255,150,100,.35)}
-  .btn-ghost{font-family:var(--mono);font-size:.84rem;cursor:pointer;padding:.95rem 1.5rem;border-radius:8px;background:rgba(110,208,234,.04);
-    border:1px solid rgba(110,208,234,.4);color:var(--blue);position:relative;z-index:0;
+  .btn{font-family:var(--mono);font-size:.83rem;letter-spacing:.04em;text-decoration:none;
+    padding:.95rem 1.8rem;border-radius:4px;background:var(--terracotta);color:#fff5ec;font-weight:500;
+    border:1px solid rgba(139,47,28,.5);cursor:pointer;display:inline-block;
+    transition:transform .3s,box-shadow .3s,background .3s;box-shadow:0 6px 22px rgba(139,47,28,.24)}
+  .btn:hover{transform:translateY(-3px);background:var(--terracotta-deep);
+    box-shadow:0 14px 36px rgba(139,47,28,.34)}
+  .btn-ghost{font-family:var(--mono);font-size:.83rem;cursor:pointer;padding:.95rem 1.5rem;
+    border-radius:4px;background:rgba(255,255,255,.5);border:1px solid var(--gold);color:#7a5a1e;
     transition:border-color .3s,color .3s,box-shadow .3s,background .3s}
-  .btn-ghost::after{content:"";position:absolute;inset:-8px;border-radius:14px;z-index:-1;pointer-events:none;
-    background:radial-gradient(ellipse at center,rgba(110,208,234,.3),transparent 72%);
-    animation:breatheSoft 4.6s ease-in-out 2.3s infinite}
-  .btn-ghost:hover{border-color:var(--blue-hot);color:var(--blue-hot);background:rgba(110,208,234,.08);box-shadow:0 0 30px rgba(110,208,234,.3)}
-  .stat-line{margin-top:2.8rem;display:flex;gap:2.2rem;flex-wrap:wrap;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;color:#73849a;text-transform:uppercase}
-  .stat-line b{color:var(--blue);font-weight:500}
-
-  .hero-art{position:relative;overflow:hidden;background:linear-gradient(160deg,#3a1d12,var(--ink))}
-  .hero-art .drift{position:absolute;inset:-3%;animation:heroDrift 12s ease-in-out infinite;will-change:transform}
-  .hero-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%}
-  /* crystal glows — positioned over the painting's diamonds by JS (cover math) */
-  .crystal{position:absolute;transform:translate(-50%,-50%);pointer-events:none;border-radius:50%;opacity:.55}
-  .crystal.w{background:radial-gradient(circle,rgba(255,255,255,.95) 0%,rgba(255,240,220,.5) 30%,rgba(230,240,255,.18) 55%,transparent 72%);
-    animation:crystalPulse 4.6s ease-in-out infinite}
-  .crystal.ruby{background:radial-gradient(circle,rgba(255,120,80,.95) 0%,rgba(225,65,38,.55) 33%,rgba(210,50,30,.16) 58%,transparent 75%);
-    animation:rubyReact 4.6s ease-in-out .6s infinite}
-  .crystal.ruby.flare{animation:rubyFlareOnce .9s ease-out}
-  .hero-art .veil{position:absolute;inset:0;z-index:2;
-    background:linear-gradient(90deg,var(--ink) 0%,rgba(10,16,32,.55) 16%,transparent 42%),
-               linear-gradient(0deg,var(--ink) 0%,transparent 26%),
-               linear-gradient(180deg,rgba(10,16,32,.55) 0%,transparent 22%)}
-  .hero-art .pulse{position:absolute;inset:0;z-index:1;pointer-events:none;
-    background:radial-gradient(ellipse 55% 45% at 52% 42%,rgba(255,180,110,.24),transparent 68%);
-    animation:breathe 6.5s ease-in-out infinite}
-  .scroll-hint{position:absolute;left:7vw;bottom:2.2rem;font-family:var(--mono);font-size:.66rem;letter-spacing:.28em;text-transform:uppercase;color:#56657a;animation:bob 2.6s ease-in-out infinite;z-index:5}
+  .btn-ghost:hover{background:#fff;color:var(--terracotta);box-shadow:0 8px 24px rgba(176,135,60,.22)}
+  .stat-line{margin-top:2.6rem;display:flex;gap:2.2rem;flex-wrap:wrap;font-family:var(--mono);
+    font-size:.7rem;letter-spacing:.13em;color:var(--ink-3);text-transform:uppercase}
+  .stat-line b{color:var(--aegean);font-weight:500}
+  .scroll-hint{position:absolute;left:7vw;bottom:2rem;z-index:5;font-family:var(--mono);
+    font-size:.64rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ink-3);
+    animation:bob 2.8s ease-in-out infinite}
 
   /* ————— sections ————— */
-  section{padding:7.5rem 7vw;position:relative;z-index:3}
-  .dark{background:transparent}
-  .terra{background:
-      radial-gradient(ellipse 80% 90% at 70% 10%,rgba(255,200,150,.14),transparent 60%),
-      linear-gradient(170deg,#c07a5c,var(--terra) 45%,#a05a41);
-    color:#3a1a0e}
-  .label{font-family:var(--mono);font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;margin-bottom:1.7rem;display:flex;align-items:center;gap:1rem}
-  .label::after{content:"";flex:0 0 3.2rem;height:1px;background:currentColor;opacity:.5;transform-origin:left;transform:scaleX(0)}
+  section{padding:7rem 7vw;position:relative;z-index:3}
+  .light{background:var(--marble)}
+  .stone{background:
+      radial-gradient(ellipse 70% 80% at 22% 8%,rgba(255,236,196,.7),transparent 60%),
+      linear-gradient(168deg,var(--marble-2),var(--marble-3));
+    border-top:1px solid rgba(176,135,60,.25);border-bottom:1px solid rgba(176,135,60,.25)}
+  .night{background:
+      radial-gradient(ellipse 70% 60% at 78% 12%,rgba(31,154,182,.24),transparent 62%),
+      linear-gradient(168deg,var(--aegean-night),#06202f);
+    color:#dcecf2}
+  .wide{max-width:64rem;margin:0 auto}
+  .widest{max-width:76rem;margin:0 auto}
+  .label{font-family:var(--mono);font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;
+    margin-bottom:1.6rem;display:flex;align-items:center;gap:1rem;color:var(--gold)}
+  .night .label{color:var(--gold-light)}
+  .label::after{content:"";flex:0 0 3.2rem;height:1px;background:currentColor;opacity:.55;
+    transform-origin:left;transform:scaleX(0)}
   .revealed .label::after{animation:lineGrow 1.1s .3s cubic-bezier(.2,.8,.2,1) forwards}
-  .terra .label{color:#6b2f1c}
-  .dark .label{color:var(--blue)}
-  h2{font-family:var(--serif);font-weight:400;font-size:clamp(2.2rem,4.8vw,3.6rem);line-height:1.12;margin-bottom:1.6rem}
-  .dark h2{color:var(--cream);text-shadow:0 0 44px rgba(110,208,234,.18)}
-  .terra h2{color:#31150b}
-  .wide{max-width:62rem;margin:0 auto}
-  .widest{max-width:72rem;margin:0 auto}
-  p.body-text{font-size:1.08rem;max-width:56ch;margin-bottom:1.2rem}
-  .terra p.body-text{color:#4d2213}
-  .dark p.body-text{color:var(--cream-dim)}
-  .terra strong{color:#2c1208}
+  h2{font-family:var(--inscr);font-weight:500;font-size:clamp(2rem,4.6vw,3.4rem);line-height:1.16;
+    margin-bottom:1.5rem;letter-spacing:.01em;color:var(--ink)}
+  .night h2{color:#f0f7fa}
+  h2 .sub{display:block;font-family:var(--serif);font-style:italic;font-weight:400;
+    font-size:.5em;letter-spacing:.02em;color:var(--gold);margin-top:.5rem}
+  .night h2 .sub{color:var(--gold-light)}
+  p.body-text{font-size:1.06rem;max-width:58ch;margin-bottom:1.1rem;color:var(--ink-2)}
+  .night p.body-text{color:#a9c4d0}
+  p.body-text strong{color:var(--ink);font-weight:500}
+  .night p.body-text strong{color:#f0f7fa}
 
-  /* reveal on scroll */
-  .rv{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
+  .rv{opacity:0;transform:translateY(30px);
+    transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
   .revealed .rv,.rv.revealed{opacity:1;transform:none}
-  .rv.d1{transition-delay:.12s}.rv.d2{transition-delay:.24s}.rv.d3{transition-delay:.36s}.rv.d4{transition-delay:.48s}.rv.d5{transition-delay:.6s}
+  .rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.2s}.rv.d3{transition-delay:.3s}
+  .rv.d4{transition-delay:.4s}.rv.d5{transition-delay:.5s}
 
-  .grid3{margin-top:2.8rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:rgba(44,18,8,.25);border:1px solid rgba(44,18,8,.25);border-radius:16px;overflow:hidden}
-  .grid3>div{background:rgba(255,225,200,.12);backdrop-filter:blur(2px);padding:2.1rem 1.9rem;transition:background .4s}
-  .grid3>div:hover{background:rgba(255,230,205,.22)}
-  .grid3 .ti{font-family:var(--serif);font-size:1.35rem;color:#2c1208;margin-bottom:.5rem}
-  .grid3 p{font-size:.93rem;color:#5c2917}
+  /* ————— identity cards ————— */
+  .grid3{margin-top:2.6rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:1.4rem}
+  .grid3>div{background:rgba(255,255,255,.62);border:1px solid rgba(176,135,60,.28);
+    border-radius:4px;padding:2rem 1.8rem;transition:transform .4s,box-shadow .4s,background .4s;
+    border-top:3px solid var(--gold)}
+  .grid3>div:hover{background:#fff;transform:translateY(-4px);
+    box-shadow:0 16px 40px rgba(90,60,20,.12)}
+  .grid3 .ti{font-family:var(--inscr);font-size:1.12rem;color:var(--ink);margin-bottom:.6rem;
+    letter-spacing:.03em}
+  .grid3 p{font-size:.93rem;color:var(--ink-2)}
 
-  /* loop steps */
-  .steps{display:flex;gap:0;flex-wrap:wrap;justify-content:space-between;position:relative;margin-top:1.4rem}
-  .steps::before{content:"";position:absolute;left:6%;right:6%;top:2.45rem;height:1px;
-    background:linear-gradient(90deg,transparent,rgba(110,208,234,.35) 12%,rgba(110,208,234,.35) 88%,transparent)}
-  .step{flex:1 1 130px;min-width:120px;text-align:center;padding:1.2rem .6rem;position:relative}
-  .step .n{width:62px;height:62px;margin:0 auto 1rem;border-radius:50%;display:flex;align-items:center;justify-content:center;
-    border:1px solid rgba(110,208,234,.4);background:radial-gradient(circle at 35% 30%,#152742,var(--ink2));
-    font-family:var(--serif);font-size:1.45rem;color:var(--blue);position:relative;z-index:1;
-    box-shadow:0 0 22px rgba(110,208,234,.12);transition:box-shadow .4s,border-color .4s;animation:ringPulse 6.5s ease-out infinite}
-  .step:nth-child(2) .n{animation-delay:1.3s}.step:nth-child(3) .n{animation-delay:2.6s}
-  .step:nth-child(4) .n{animation-delay:3.9s}.step:nth-child(5) .n{animation-delay:5.2s}
-  .step:hover .n{box-shadow:0 0 34px rgba(110,208,234,.45);border-color:var(--blue-hot)}
-  .step .name{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--cream);margin-bottom:.45rem}
-  .step p{font-size:.82rem;color:#73849a}
+  /* ═════ THE COLONNADE — six memory layers, drawn as the six columns of a
+           hexastyle temple front. The building is the diagram. ═════ */
+  .temple{margin-top:3rem}
+  /* pediment */
+  .pediment{position:relative;aspect-ratio:7.8;height:auto;max-width:1030px;margin:0 auto -1px;
+    background:linear-gradient(160deg,#fffefa 8%,#fbf5e7 52%,#f2e8d2);
+    clip-path:polygon(50% 0,100% 100%,0 100%);
+    display:flex;align-items:flex-end;justify-content:center;padding-bottom:.5rem}
+  /* the tympanum, sunk behind the raking cornice and a good deal darker —
+     that step in value is the only thing that makes the cornice read */
+  .pediment::before{content:"";position:absolute;left:0;right:0;bottom:0;top:11%;
+    clip-path:polygon(50% 0,100% 100%,0 100%);
+    background:linear-gradient(170deg,#dbc9a4,#c9b287)}
+  .pediment span{position:relative;z-index:1;font-family:var(--serif);
+    font-size:clamp(.72rem,1.5vw,1.35rem);letter-spacing:.44em;color:#5f4310;text-indent:.44em;
+    text-shadow:0 1px 0 rgba(255,255,255,.45)}
+  /* entablature: cornice, then the triglyph frieze, then the architrave */
+  .entablature{max-width:1030px;margin:0 auto;border-radius:2px;overflow:hidden;
+    box-shadow:0 10px 30px rgba(90,60,20,.1)}
+  .cornice{height:clamp(8px,1.65vw,17px);background:linear-gradient(#fffdf7,#eee0c4)}
+  /* The frieze is an SVG rather than a CSS gradient because a triglyph has to
+     land on every column centre AND every gap centre — a fixed-pixel repeat
+     drifts out of phase the moment the page is resized. */
+  .frieze{height:clamp(18px,3.7vw,38px);background:#f0e6cf;line-height:0;
+    border-top:1px solid rgba(154,126,80,.34);border-bottom:1px solid rgba(154,126,80,.34)}
+  .frieze svg{width:100%;height:100%;display:block}
+  .architrave{height:clamp(16px,2.9vw,30px);background:linear-gradient(#faf3e3,#e6d9bd);
+    display:flex;align-items:center;justify-content:center;font-family:var(--mono);
+    font-size:clamp(.44rem,.85vw,.6rem);letter-spacing:.3em;text-transform:uppercase;
+    color:#8a7245;overflow:hidden;white-space:nowrap}
+  /* the columns */
+  .colonnade{max-width:1030px;margin:0 auto;display:grid;
+    grid-template-columns:repeat(6,1fr);gap:0;
+    background:linear-gradient(180deg,rgba(90,60,20,.09),transparent 22%)}
+  .col{padding:0 .2rem;text-align:center;position:relative;cursor:default}
+  .col svg{width:100%;max-width:118px;height:auto;margin:0 auto;display:block;
+    --lit:#fffefb;--face:#f7efdd;--shade:#e2d2b3;--core:#c9b28a;--flute:#9d8557;
+    transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+  .col:hover svg{--lit:#ffffff;--face:#fdf7e9;--shade:#ecdfc5;--core:#d8c39d;--flute:#ab9364;
+    transform:translateY(-8px)}
+  /* the shadow each column lays on the stylobate */
+  .col::after{content:"";position:absolute;left:50%;bottom:-4px;width:74%;height:12px;
+    margin-left:-37%;border-radius:50%;pointer-events:none;
+    background:radial-gradient(ellipse,rgba(90,60,20,.3),transparent 70%);
+    transition:opacity .45s}
+  .col:hover::after{opacity:.5}
+  .col .glow{position:absolute;left:50%;top:16%;width:150px;height:150px;margin-left:-75px;
+    border-radius:50%;pointer-events:none;opacity:0;transition:opacity .45s;
+    background:radial-gradient(circle,rgba(255,206,120,.4),transparent 68%)}
+  .col:hover .glow{opacity:1}
+  /* stylobate: the three steps the whole order stands on */
+  .stylobate{max-width:1060px;margin:0 auto}
+  .stylobate i{display:block;background:linear-gradient(#f7efdd,#e3d5b6);
+    border-top:1px solid rgba(255,255,255,.7)}
+  .stylobate i:nth-child(1){height:clamp(8px,1.5vw,15px);margin:0 3%}
+  .stylobate i:nth-child(2){height:clamp(8px,1.5vw,15px);margin:0 1.5%}
+  .stylobate i:nth-child(3){height:clamp(9px,1.7vw,17px);margin:0;
+    box-shadow:0 14px 34px rgba(90,60,20,.14)}
+  .stylo-note{max-width:1000px;margin:1.1rem auto 0;text-align:center;font-family:var(--mono);
+    font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+  /* the six readings, aligned under the six columns */
+  .layers{max-width:1000px;margin:2.8rem auto 0;display:grid;
+    grid-template-columns:repeat(6,1fr);gap:1.1rem}
+  .layer{text-align:left;padding-top:1.1rem;border-top:2px solid var(--gold);
+    transition:border-color .35s}
+  .layer:hover{border-color:var(--terracotta)}
+  .layer .gr{font-family:var(--serif);font-size:1.02rem;letter-spacing:.08em;color:var(--gold);
+    display:block;margin-bottom:.1rem}
+  .layer .nm{font-family:var(--inscr);font-size:1rem;color:var(--ink);letter-spacing:.04em;
+    display:block;margin-bottom:.5rem}
+  .layer p{font-size:.85rem;color:var(--ink-2);line-height:1.6;margin-bottom:.6rem}
+  .layer code{font-family:var(--mono);font-size:.63rem;color:#8a7245;
+    word-break:normal;overflow-wrap:anywhere;display:block;line-height:1.55}
+  .layer .more{margin-top:.55rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--terracotta);background:none;border:0;padding:0;
+    cursor:pointer;border-bottom:1px solid rgba(181,67,43,.35);transition:border-color .3s}
+  .layer .more:hover{border-color:var(--terracotta)}
+  /* the columns are buttons, so a keyboard reaches the same story a cursor does */
+  .col{background:none;border:0;font:inherit;color:inherit;width:100%}
+  .col:focus-visible,.layer .more:focus-visible{outline:2px solid var(--terracotta);
+    outline-offset:3px;border-radius:2px}
 
-  /* terminal */
-  .term{margin-top:3rem;background:rgba(8,13,26,.85);border:1px solid rgba(110,208,234,.22);border-radius:14px;padding:1.7rem 1.9rem;
-    font-family:var(--mono);font-size:.85rem;line-height:1.9;overflow-x:auto;position:relative;
-    box-shadow:0 24px 70px rgba(0,0,0,.45),0 0 40px rgba(110,208,234,.06) inset}
-  .term::before{content:"● ● ●";position:absolute;top:1rem;right:1.3rem;font-size:.55rem;letter-spacing:.35em;color:#2c4056}
-  .term .lbl{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#73849a;margin-bottom:1rem}
-  .term .line{min-height:1.9em;white-space:pre-wrap}
-  .term .ok{color:#7fcf95}
-  .term .muted{color:#73849a}
-  .term .pr{color:var(--ruby)}
-  .term .arg{color:var(--blue)}
-  .term .caret{display:inline-block;width:.6ch;background:var(--blue);height:1.05em;vertical-align:text-bottom;animation:blink 1s steps(1) infinite}
+  /* ————— the reading: one layer's full story ————— */
+  .scrim{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;
+    padding:5vh 5vw;background:rgba(40,28,10,.42);backdrop-filter:blur(3px)}
+  .scrim.open{display:flex}
+  .reading{position:relative;max-width:44rem;width:100%;max-height:90vh;overflow-y:auto;
+    background:linear-gradient(168deg,#fffdf7,var(--marble-2));border:1px solid rgba(154,126,80,.4);
+    border-top:4px solid var(--gold);border-radius:4px;padding:2.6rem 2.8rem 2.2rem;
+    box-shadow:0 34px 90px rgba(50,32,8,.34)}
+  .reading .gr{font-family:var(--serif);font-size:1.5rem;letter-spacing:.2em;color:var(--gold);
+    display:block;margin-bottom:.1rem}
+  .reading h3{font-family:var(--inscr);font-weight:500;font-size:1.9rem;color:var(--ink);
+    letter-spacing:.02em;margin-bottom:.5rem;line-height:1.2}
+  .reading .src{font-family:var(--mono);font-size:.68rem;color:#8a7245;margin-bottom:1.5rem;
+    padding-bottom:1.2rem;border-bottom:1px solid rgba(154,126,80,.3);word-break:normal;
+    overflow-wrap:anywhere}
+  .reading p{font-size:1rem;color:var(--ink-2);margin-bottom:1rem;line-height:1.72}
+  .reading p strong{color:var(--ink);font-weight:500}
+  .reading p em{color:#7a5a1e;font-style:italic}
+  .reading .lead{font-family:var(--serif);font-size:1.22rem;font-style:italic;color:var(--aegean-deep);
+    margin-bottom:1.3rem;line-height:1.5}
+  .reading code{font-family:var(--mono);font-size:.84em;color:#7a5a1e;
+    background:rgba(176,135,60,.12);padding:.1em .35em;border-radius:2px}
+  .reading .close{position:absolute;top:1rem;right:1.1rem;width:2.1rem;height:2.1rem;
+    display:flex;align-items:center;justify-content:center;font-size:1.3rem;line-height:1;
+    background:none;border:1px solid transparent;border-radius:50%;color:var(--ink-3);
+    cursor:pointer;transition:color .25s,border-color .25s,background .25s}
+  .reading .close:hover{color:var(--terracotta);border-color:rgba(181,67,43,.4);
+    background:rgba(255,255,255,.7)}
+  .reading .nav{display:flex;justify-content:space-between;gap:1rem;margin-top:1.9rem;
+    padding-top:1.3rem;border-top:1px solid rgba(154,126,80,.3)}
+  .reading .nav button{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-2);background:none;border:0;cursor:pointer;
+    padding:.3rem 0;transition:color .25s}
+  .reading .nav button:hover:not(:disabled){color:var(--terracotta)}
+  .reading .nav button:disabled{opacity:.32;cursor:default}
+  .reading .nav .idx{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;
+    color:var(--ink-3);align-self:center}
+  @media (max-width:620px){
+    .reading{padding:2.2rem 1.5rem 1.8rem}
+    .reading h3{font-size:1.5rem}
+  }
 
-  /* principles */
-  .principles{list-style:none;margin-top:1rem}
-  .principles li{display:flex;gap:1.5rem;padding:1.35rem .8rem;border-top:1px solid rgba(44,18,8,.22);border-radius:8px;transition:background .35s,transform .35s}
-  .principles li:hover{background:rgba(255,228,200,.14);transform:translateX(6px)}
-  .principles .num{font-family:var(--serif);font-size:1.45rem;color:#2c1208;min-width:2.3rem;font-style:italic}
-  .principles strong{display:block;font-size:1.06rem;font-weight:600;color:#2c1208;margin-bottom:.25rem}
-  .principles span.b{font-size:.95rem;color:#5c2917}
+  /* ————— the loop ————— */
+  .steps{display:flex;flex-wrap:wrap;justify-content:space-between;position:relative;
+    margin-top:1.6rem}
+  .steps::before{content:"";position:absolute;left:8%;right:8%;top:2.5rem;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(224,184,105,.5) 12%,rgba(224,184,105,.5) 88%,transparent)}
+  .step{flex:1 1 140px;min-width:125px;text-align:center;padding:1.1rem .6rem;position:relative}
+  .step .n{width:64px;height:64px;margin:0 auto 1rem;border-radius:50%;display:flex;
+    align-items:center;justify-content:center;font-family:var(--serif);font-size:1.6rem;
+    color:var(--gold-light);position:relative;z-index:1;
+    border:1px solid rgba(224,184,105,.45);background:linear-gradient(150deg,#123246,#082433);
+    animation:glowRing 7s ease-out infinite;transition:border-color .4s,color .4s}
+  .step:nth-child(2) .n{animation-delay:1.4s}.step:nth-child(3) .n{animation-delay:2.8s}
+  .step:nth-child(4) .n{animation-delay:4.2s}.step:nth-child(5) .n{animation-delay:5.6s}
+  .step:hover .n{border-color:var(--gold-light);color:#fff0d0}
+  .step .name{font-family:var(--mono);font-size:.7rem;letter-spacing:.19em;text-transform:uppercase;
+    color:#eaf4f7;margin-bottom:.45rem}
+  .step p{font-size:.82rem;color:#93b1bf}
 
-  /* capability */
-  .twocol{display:grid;grid-template-columns:1.1fr .9fr;gap:2.6rem;align-items:start;margin-top:1rem}
-  .sublabel{font-family:var(--mono);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);margin-bottom:1.1rem}
-  .rowlist{display:flex;flex-direction:column;gap:1px;background:rgba(110,208,234,.14);border:1px solid rgba(110,208,234,.14);border-radius:14px;overflow:hidden}
-  .rowlist .r{background:rgba(13,20,36,.85);padding:1.05rem 1.35rem;display:flex;gap:1.1rem;align-items:baseline;justify-content:space-between;transition:background .35s,padding-left .35s}
-  .rowlist .r:hover{background:rgba(19,29,50,.9);padding-left:1.7rem}
-  .rowlist code{font-family:var(--mono);font-size:.8rem;color:var(--blue);min-width:6rem;font-weight:500}
-  .rowlist .d{font-size:.9rem;color:var(--cream-dim);text-align:right}
-  .rowlist .pname{font-family:var(--serif);font-size:1.1rem;color:var(--cream)}
+  /* ————— terminal ————— */
+  .term{margin-top:3rem;background:rgba(3,17,26,.72);border:1px solid rgba(224,184,105,.24);
+    border-radius:6px;padding:1.7rem 1.9rem;font-family:var(--mono);font-size:.85rem;
+    line-height:1.9;overflow-x:auto;position:relative;
+    box-shadow:0 24px 60px rgba(0,0,0,.34)}
+  .term::before{content:"● ● ●";position:absolute;top:1rem;right:1.3rem;font-size:.55rem;
+    letter-spacing:.35em;color:#2c5064}
+  .term .lbl{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:#6d8fa0;
+    margin-bottom:1rem}
+  .term .line{min-height:1.9em;white-space:pre-wrap;color:#cfe3ea}
+  .term .ok{color:#79cf9b}
+  .term .muted{color:#8fadbb}
+  .term .pr{color:var(--gold-light)}
+  .term .arg{color:var(--sea-light)}
+  .term .caret{display:inline-block;width:.6ch;background:var(--gold-light);height:1.05em;
+    vertical-align:text-bottom;animation:blink 1s steps(1) infinite}
 
-  /* stats */
-  .stats4{max-width:64rem;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:2.2rem;text-align:center}
-  .stats4 .v{font-family:var(--serif);font-size:clamp(2.6rem,5.4vw,3.8rem);line-height:1;color:#2c1208;font-variant-numeric:tabular-nums}
-  .stats4 .l{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:#6b2f1c;margin-top:.7rem}
+  /* ————— principles, cut into stelae ————— */
+  .stelae{list-style:none;margin-top:2.2rem;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.3rem}
+  .stele{background:linear-gradient(165deg,#fdf9f0,var(--marble-2));
+    border:1px solid rgba(154,126,80,.3);border-radius:4px 4px 2px 2px;padding:1.8rem 1.7rem 1.6rem;
+    position:relative;transition:transform .4s,box-shadow .4s}
+  .stele::before{content:"";position:absolute;left:1.7rem;right:1.7rem;top:.85rem;height:1px;
+    background:rgba(154,126,80,.4)}
+  .stele:hover{transform:translateY(-5px);box-shadow:0 18px 42px rgba(90,60,20,.14)}
+  .stele .num{font-family:var(--serif);font-size:1rem;color:var(--gold);letter-spacing:.1em;
+    display:block;margin:.4rem 0 .7rem}
+  .stele strong{display:block;font-family:var(--inscr);font-size:1.02rem;font-weight:500;
+    color:var(--ink);margin-bottom:.55rem;letter-spacing:.02em;line-height:1.35;
+    text-shadow:0 1px 0 rgba(255,255,255,.9)}
+  .stele span.b{font-size:.92rem;color:var(--ink-2)}
 
-  /* install */
-  .install-box{display:inline-flex;align-items:center;gap:1.1rem;cursor:pointer;font-family:var(--mono);font-size:.98rem;
-    background:rgba(8,13,26,.9);border:1px solid rgba(110,208,234,.35);border-radius:12px;padding:1.05rem 1.6rem;color:var(--cream);
-    transition:border-color .3s,box-shadow .3s;animation:ringPulse 5s ease-out infinite}
-  .install-box:hover{border-color:var(--blue-hot);box-shadow:0 0 34px rgba(110,208,234,.25)}
-  .install-box .copied{font-size:.7rem;letter-spacing:.1em;color:var(--blue);text-transform:uppercase;margin-left:.6rem}
+  /* ————— full-bleed photographic bands ————— */
+  .band{position:relative;padding:0;min-height:640px;display:flex;align-items:center;
+    overflow:hidden;z-index:3}
+  .band img{position:absolute;inset:-3%;width:106%;height:106%;object-fit:cover;
+    object-position:62% 50%;z-index:0}
+  /* These photographs are far busier than a flat colour, so the veil has to
+     hold longer across the type than a decorative wash would. */
+  .band::after{content:"";position:absolute;inset:0;z-index:1;
+    background:linear-gradient(96deg,var(--marble) 0%,rgba(251,246,234,.97) 34%,rgba(251,246,234,.88) 48%,rgba(251,246,234,.24) 64%,transparent 78%)}
+  .band-inner{position:relative;z-index:2;padding:6rem 7vw;max-width:60rem}
 
-  footer{background:rgba(6,10,20,.92);padding:3.4rem 7vw;border-top:1px solid rgba(110,208,234,.12);text-align:center;
-    font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;color:#73849a;position:relative;z-index:3}
-  footer .q{color:var(--blue);font-style:italic;font-family:var(--serif);font-size:1.05rem}
-  footer a{color:var(--blue);text-decoration:none;transition:color .25s,text-shadow .25s}
-  footer a:hover{color:var(--blue-hot);text-shadow:0 0 16px rgba(110,208,234,.55)}
+  /* a short band that carries an inscription and nothing else */
+  .plate{position:relative;min-height:420px;display:flex;align-items:center;
+    justify-content:center;overflow:hidden;z-index:3;padding:0}
+  .plate img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    object-position:50% 42%;z-index:0}
+  .plate::after{content:"";position:absolute;inset:0;z-index:1;
+    background:radial-gradient(ellipse 60% 82% at 50% 50%,rgba(251,246,234,.9),rgba(251,246,234,.5) 60%,rgba(251,246,234,.16) 100%)}
+  .plate-inner{position:relative;z-index:2;text-align:center;padding:3rem 7vw}
+  .plate-inner .gr{font-family:var(--serif);font-size:clamp(1.5rem,3.4vw,2.4rem);
+    letter-spacing:.34em;color:#5f4310;text-indent:.34em;
+    text-shadow:0 1px 0 rgba(255,255,255,.6)}
+  .plate-inner p{margin-top:.9rem;font-family:var(--mono);font-size:.68rem;letter-spacing:.22em;
+    text-transform:uppercase;color:#6d5a34}
 
+  /* the closing band: the picture sits behind the type as warmth, not subject */
+  .closing{position:relative;overflow:hidden}
+  .closing>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    object-position:52% 58%;z-index:0}
+  .closing::after{content:"";position:absolute;inset:0;z-index:1;
+    background:radial-gradient(ellipse 68% 74% at 50% 48%,rgba(251,246,234,.95),rgba(251,246,234,.86) 54%,rgba(251,246,234,.72) 100%)}
+  .closing>div{position:relative;z-index:2}
+
+  /* ————— capability ————— */
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:2.4rem;align-items:start;margin-top:1.4rem}
+  .sublabel{font-family:var(--mono);font-size:.66rem;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--gold-light);margin-bottom:1rem}
+  .rowlist{display:flex;flex-direction:column;border:1px solid rgba(224,184,105,.26);
+    border-radius:4px;overflow:hidden}
+  .rowlist .r{background:rgba(255,255,255,.05);padding:1rem 1.3rem;display:flex;gap:1.1rem;
+    align-items:baseline;justify-content:space-between;
+    border-bottom:1px solid rgba(224,184,105,.16);transition:background .35s,padding-left .35s}
+  .rowlist .r:last-child{border-bottom:0}
+  .rowlist .r:hover{background:rgba(255,255,255,.11);padding-left:1.7rem}
+  .rowlist code{font-family:var(--mono);font-size:.78rem;color:var(--gold-light);min-width:6rem;
+    font-weight:500}
+  .rowlist .d{font-size:.88rem;color:#a9c4d0;text-align:right}
+  .rowlist .pname{font-family:var(--inscr);font-size:1rem;color:#eaf4f7;letter-spacing:.03em}
+
+  /* ————— Aura Droid ————— */
+  .droid{display:grid;grid-template-columns:1.05fr .95fr;gap:3rem;align-items:center;margin-top:2.6rem}
+  .droid .shots{display:flex;gap:1rem;align-items:flex-end}
+  .droid figure{flex:1 1 0;min-width:0}
+  /* the phones are shown at a slight fan, the middle one nearest */
+  .droid figure:nth-child(1){transform:rotate(-2.4deg) translateY(10px)}
+  .droid figure:nth-child(3){transform:rotate(2.4deg) translateY(10px)}
+  .droid figure img{width:100%;height:auto;border-radius:12px;
+    border:1px solid rgba(154,126,80,.4);box-shadow:0 18px 44px rgba(70,46,12,.2);
+    transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s}
+  .droid figure:hover img{transform:translateY(-8px);box-shadow:0 26px 60px rgba(70,46,12,.28)}
+  .droid figcaption{margin-top:.8rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-3);text-align:center;line-height:1.5}
+  .rowlist.light{border-color:rgba(154,126,80,.34)}
+  .rowlist.light .r{background:rgba(255,255,255,.55);border-bottom-color:rgba(154,126,80,.22)}
+  .rowlist.light .r:hover{background:#fff}
+  .rowlist.light code{color:#8a5f22}
+  .rowlist.light .d{color:var(--ink-2)}
+  code.inline{font-family:var(--mono);font-size:.86em;color:#7a5a1e;
+    background:rgba(176,135,60,.14);padding:.1em .35em;border-radius:2px}
+  @media (max-width:900px){
+    .droid{grid-template-columns:1fr;gap:2.2rem}
+    .droid .shots{max-width:34rem;margin:0 auto}
+  }
+
+  /* ————— the frieze of numbers ————— */
+  .metopes{max-width:66rem;margin:0 auto;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0;
+    border:1px solid rgba(154,126,80,.32);border-radius:3px;overflow:hidden}
+  .metope{padding:2.4rem 1.4rem;text-align:center;background:rgba(255,255,255,.5);
+    border-right:1px solid rgba(154,126,80,.24);transition:background .4s}
+  .metope:last-child{border-right:0}
+  .metope:hover{background:#fff}
+  .metope .v{font-family:var(--inscr);font-size:clamp(2.2rem,4.6vw,3.2rem);line-height:1;
+    color:var(--ink);font-variant-numeric:tabular-nums;font-weight:500}
+  .metope .l{font-family:var(--mono);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;
+    color:#8a7245;margin-top:.7rem}
+
+  /* ————— install ————— */
+  .install-box{display:inline-flex;align-items:center;gap:1.1rem;cursor:pointer;
+    font-family:var(--mono);font-size:.96rem;background:rgba(255,255,255,.72);
+    border:1px solid var(--gold);border-radius:4px;padding:1.05rem 1.6rem;color:var(--ink);
+    transition:border-color .3s,box-shadow .3s,background .3s;animation:glowRing 6s ease-out infinite}
+  .install-box:hover{background:#fff;box-shadow:0 12px 34px rgba(176,135,60,.24)}
+  .install-box .copied{font-size:.68rem;letter-spacing:.1em;color:var(--gold);
+    text-transform:uppercase;margin-left:.6rem}
+
+  footer{background:linear-gradient(#f2e9d6,var(--marble-3));padding:3.2rem 7vw;
+    border-top:1px solid rgba(176,135,60,.3);text-align:center;font-family:var(--mono);
+    font-size:.72rem;letter-spacing:.07em;color:#7a6842;position:relative;z-index:3}
+  footer .q{color:var(--aegean-deep);font-style:italic;font-family:var(--serif);font-size:1.05rem}
+  footer a{color:#8a5f22;text-decoration:none;transition:color .25s}
+  footer a:hover{color:var(--terracotta)}
+
+  @media (max-width:1000px){
+    .layers{grid-template-columns:repeat(3,1fr)}
+  }
+  @media (max-width:680px){
+    .layers{grid-template-columns:repeat(2,1fr);gap:1.4rem 1.1rem}
+  }
   @media (max-width:880px){
-    header.hero{grid-template-columns:1fr;grid-template-rows:auto 46vh}
-    .hero-text{padding:16vh 8vw 4vh}
-    .hero-art .veil{background:linear-gradient(180deg,var(--ink) 0%,rgba(10,16,32,.45) 18%,transparent 45%)}
+    section{padding:5rem 7vw}
+    .hero-inner{padding:9rem 7vw 6rem}
+    .hero-art img{object-position:72% 46%}
+    .hero-art::after{background:linear-gradient(180deg,rgba(251,246,234,.95) 0%,rgba(251,246,234,.92) 46%,rgba(251,246,234,.76) 64%,rgba(251,246,234,.28) 82%,rgba(251,246,234,.1) 100%)}
     .twocol{grid-template-columns:1fr}
     .rowlist .d{text-align:left}
-    #cursorAura{display:none}
+    .band{min-height:auto}
+    .band::after{background:linear-gradient(180deg,rgba(251,246,234,.93) 0%,rgba(251,246,234,.78) 46%,rgba(251,246,234,.9) 100%)}
+    .band-inner{padding:4.5rem 7vw}
+    .topnav{gap:1.1rem;font-size:.7rem}
+    #sunAura{display:none}
     .scroll-hint{display:none}
+  }
+  @media (max-width:430px){
+    .layers{grid-template-columns:1fr;gap:1.2rem}
+    .topnav{gap:.9rem;font-size:.66rem;padding:.8rem 1rem}
   }
   @media (prefers-reduced-motion:reduce){
     *,*::before,*::after{animation:none!important;transition:none!important}
     .rv{opacity:1;transform:none}
-    #embers,#sparks,#cursorAura{display:none}
+    #motes,#sparks,#sunAura{display:none}
   }
 </style>
 </head>
 <body>
 
-<canvas id="embers" aria-hidden="true"></canvas>
+<canvas id="motes" aria-hidden="true"></canvas>
 <canvas id="sparks" aria-hidden="true"></canvas>
-<div id="cursorAura" aria-hidden="true"></div>
+<div id="sunAura" aria-hidden="true"></div>
+
+<!-- One Doric column, drawn once and set six times. Its colours come from CSS
+     custom properties, so each instance lights up under the cursor. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <!-- A shaft turns like a cylinder here by way of five flat vertical bands,
+       not a gradient: gradient stops written as var(--x) do not resolve inside
+       the shadow tree that <use> builds, and silently fall back to black.
+       The bands run rim / highlight / half-tone / shade / core from left to
+       right, because the light on this whole page comes from the left. -->
+  <symbol id="doric" viewBox="0 0 64 178">
+    <rect x="10" y="0" width="44" height="7" fill="var(--lit)"/>
+    <rect x="10" y="5.2" width="44" height="2" fill="var(--shade)"/>
+    <path d="M13 7H51L47 16H17Z" fill="var(--face)"/>
+    <path d="M13 7H30L26 16H17Z" fill="var(--lit)"/>
+    <path d="M17 16H20L18.4 158H15Z" fill="var(--shade)"/>
+    <path d="M20 16H29L28.6 158H18.4Z" fill="var(--lit)"/>
+    <path d="M29 16H37.4L38.1 158H28.6Z" fill="var(--face)"/>
+    <path d="M37.4 16H43.4L44.9 158H38.1Z" fill="var(--shade)"/>
+    <path d="M43.4 16H47L49 158H44.9Z" fill="var(--core)"/>
+    <g stroke="var(--flute)" stroke-width=".8" opacity=".3">
+      <path d="M21.5 21V153"/><path d="M26 21V154"/><path d="M31 21V155"/>
+      <path d="M36 21V154"/><path d="M41 21V153"/>
+    </g>
+    <rect x="12" y="158" width="40" height="8" fill="var(--face)"/>
+    <rect x="12" y="158" width="40" height="2.4" fill="var(--lit)"/>
+    <rect x="9" y="166" width="46" height="11" fill="var(--face)"/>
+    <rect x="9" y="166" width="46" height="2.8" fill="var(--lit)"/>
+  </symbol>
+</svg>
 
 <nav class="topnav" id="topnav">
   <span class="brand">AURA CODE</span>
   <a href="#identity">About</a>
+  <a href="#memory">Memory</a>
   <a href="#loop">How it works</a>
+  <a href="#droid">Android</a>
   <a href="#install">Install</a>
   <a href="aura-windows-manual.html">Windows Manual</a>
   <a href="https://github.com/milodule3-debug/aura-code" target="_blank" rel="noopener">GitHub →</a>
 </nav>
 
 <header class="hero" id="start">
-  <div class="hero-text">
+  <div class="hero-art">
+    <img src="hero-temple.jpg" width="1408" height="768" alt="Watercolour of a Doric temple standing on a headland above the Aegean, a mountain range and open sea beyond it" fetchpriority="high">
+  </div>
+  <div class="hero-inner">
     <div class="kicker rv revealed">Autonomous Coding Agent</div>
     <h1 class="rv revealed d1">Aura&nbsp;Code</h1>
+    <p class="greek rv revealed d1">Οὐ πειρῶμαι, ἀλλ’ ἐλέγχω</p>
     <p class="tagline rv revealed d2">“I don’t try. I verify.<span class="cursor">▍</span>”</p>
     <p class="lede rv revealed d3">An open-source AI coding agent — <strong>built by agents, for agents</strong>. She reads your codebase, plans, executes, runs your tests, and reports exactly what she verified. Model-agnostic. MIT licensed.</p>
     <div class="cta-row rv revealed d4">
@@ -268,47 +548,127 @@
       <button class="btn-ghost" onclick="copyInstall(this)">$ npm i -g aura-code</button>
     </div>
     <div class="stat-line rv revealed d5">
-      <span><b>1,121+</b> tests</span>
+      <span><b>1,424</b> tests</span>
       <span><b>MIT</b> licensed</span>
-      <span><b>v0.8.0</b> · node 18+</span>
+      <span><b>v0.10.5</b> · node 18+</span>
     </div>
   </div>
-  <div class="hero-art">
-    <div class="drift" id="drift">
-      <img src="README-hero.jpg" alt="Aura — copper line-art portrait with glowing crystals" fetchpriority="high">
-      <div id="crystals" aria-hidden="true"></div>
-    </div>
-    <div class="pulse"></div>
-    <div class="veil"></div>
-  </div>
-  <div class="scroll-hint">↓ she breathes</div>
+  <div class="scroll-hint">↓ she keeps the record</div>
 </header>
 
-<section class="terra" id="identity">
+<div class="meander" aria-hidden="true"></div>
+
+<section class="light" id="identity">
   <div class="wide">
     <div class="label rv">01 — Identity</div>
-    <h2 class="rv d1">She is the evidence of her own thesis.</h2>
+    <h2 class="rv d1">She is the evidence of her own thesis.<span class="sub">πρᾶξις — she who acts and executes</span></h2>
     <p class="body-text rv d2">Every line of Aura was written by AI agents — Claude proposed architecture, others implemented, verified, and reviewed. <strong>The agent that writes your code was itself written by agents. That’s not a bug — that’s the proof.</strong></p>
-    <p class="body-text rv d3" style="color:#5c2917">Designed and brought to life by Dušan Milosavljević. Written in TypeScript, strictly typed. Built on the <em>Praktess</em> framework, from the Ancient Greek: <em>she who acts and executes</em>.</p>
+    <p class="body-text rv d3">Designed and brought to life by Dušan Milosavljević. Written in TypeScript, strictly typed. Built on the <em>Praktess</em> framework — from the Greek <em>πρᾶξις</em>, the doing of a thing as opposed to the theory of it. The Greeks kept the two words apart on purpose. So does she.</p>
     <div class="grid3 rv d4">
-      <div><div class="ti">Model-agnostic</div><p>Claude, GPT, Gemini, MiMo, DeepSeek, OpenCode Zen, Ollama — and any OpenAI-compatible endpoint.</p></div>
-      <div><div class="ti">Self-aware</div><p>She cites line numbers and reports what was verified — not what was attempted.</p></div>
-      <div><div class="ti">Open source</div><p>MIT licensed. 1,121+ tests passing. Clone it, read it, run it.</p></div>
+      <div><div class="ti">Model-agnostic</div><p>Claude, GPT, Gemini, MiMo, GLM, DeepSeek, Ollama — and any OpenAI-compatible endpoint.</p></div>
+      <div><div class="ti">Self-aware</div><p>She cites file paths and line numbers, and reports what was verified — not what was attempted.</p></div>
+      <div><div class="ti">Open source</div><p>MIT licensed. Clone it, read it, run it, and check every claim on this page against the source.</p></div>
     </div>
   </div>
 </section>
 
-<section class="dark" id="loop">
+<section class="plate">
+  <img src="orders.jpg" width="1800" height="771" alt="Four Greek column orders standing on a stone terrace above a Mediterranean landscape" loading="lazy">
+  <div class="plate-inner">
+    <span class="gr">ΤΑΞΙΣ</span>
+    <p>The arrangement that holds a thing up</p>
+  </div>
+</section>
+
+<section class="stone" id="memory">
   <div class="widest">
-    <div class="label rv">02 — How she works</div>
+    <div class="label rv">02 — Memory</div>
+    <h2 class="rv d1">Six columns hold the roof up.<span class="sub">ΜΝΗΜΗ — what she carries between one task and the next</span></h2>
+    <p class="body-text rv d2">A Greek temple front is <strong>hexastyle</strong>: six columns across, each one carrying its share of the weight, none of them optional. Aura’s memory is built the same way. Six layers, each with a different half-life — from the graph she builds of your repository this second, to the lessons she still holds a month from now.</p>
+
+    <div class="temple rv d3">
+      <div class="pediment"><span>ΜΝΗΜΗ</span></div>
+      <div class="entablature">
+        <div class="cornice"></div>
+        <div class="frieze">
+          <!-- One triglyph per pattern tile, offset by half a tile so the
+               tiles land on 0,1,2… — i.e. over every column and every gap. -->
+          <svg viewBox="0 0 12 1" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <defs>
+              <pattern id="triglyphs" x="-0.5" y="0" width="1" height="1" patternUnits="userSpaceOnUse">
+                <rect x="0.343" y="0.09" width="0.056" height="0.82" fill="#9a7e52" opacity=".62"/>
+                <rect x="0.472" y="0.09" width="0.056" height="0.82" fill="#9a7e52" opacity=".62"/>
+                <rect x="0.601" y="0.09" width="0.056" height="0.82" fill="#9a7e52" opacity=".62"/>
+              </pattern>
+            </defs>
+            <rect width="12" height="1" fill="url(#triglyphs)"/>
+          </svg>
+        </div>
+        <div class="architrave">one running context</div>
+      </div>
+      <div class="colonnade">
+        <button class="col" type="button" data-layer="0" aria-haspopup="dialog" aria-label="Read the full story of the Perception layer"><span class="glow"></span><svg viewBox="0 0 64 178" aria-hidden="true"><use href="#doric"/></svg></button>
+        <button class="col" type="button" data-layer="1" aria-haspopup="dialog" aria-label="Read the full story of the Context layer"><span class="glow"></span><svg viewBox="0 0 64 178" aria-hidden="true"><use href="#doric"/></svg></button>
+        <button class="col" type="button" data-layer="2" aria-haspopup="dialog" aria-label="Read the full story of the Session layer"><span class="glow"></span><svg viewBox="0 0 64 178" aria-hidden="true"><use href="#doric"/></svg></button>
+        <button class="col" type="button" data-layer="3" aria-haspopup="dialog" aria-label="Read the full story of the Identity layer"><span class="glow"></span><svg viewBox="0 0 64 178" aria-hidden="true"><use href="#doric"/></svg></button>
+        <button class="col" type="button" data-layer="4" aria-haspopup="dialog" aria-label="Read the full story of the Episodes layer"><span class="glow"></span><svg viewBox="0 0 64 178" aria-hidden="true"><use href="#doric"/></svg></button>
+        <button class="col" type="button" data-layer="5" aria-haspopup="dialog" aria-label="Read the full story of the Dream layer"><span class="glow"></span><svg viewBox="0 0 64 178" aria-hidden="true"><use href="#doric"/></svg></button>
+      </div>
+      <div class="stylobate"><i></i><i></i><i></i></div>
+      <div class="stylo-note">στυλοβάτης — your repository, which everything above stands on</div>
+
+      <div class="layers">
+        <div class="layer">
+          <span class="gr">ΑΙΣΘΗΣΙΣ</span><span class="nm">Perception</span>
+          <p>Files, symbols, imports and call edges, extracted into a graph before a single line is touched.</p>
+          <code>src/perception/graph-store.ts</code>
+          <button class="more" type="button" data-layer="0" aria-haspopup="dialog">Read on →</button>
+        </div>
+        <div class="layer">
+          <span class="gr">ΠΑΡΟΝ</span><span class="nm">Context</span>
+          <p>The working window — anchor, fact-log, tail. When it fills it is compacted, never blindly truncated.</p>
+          <code>src/agent/tiered-context.ts</code>
+          <button class="more" type="button" data-layer="1" aria-haspopup="dialog">Read on →</button>
+        </div>
+        <div class="layer">
+          <span class="gr">ΛΟΓΟΣ</span><span class="nm">Session</span>
+          <p>Every turn of the task in progress, written to disk as it happens, and picked back up with <em>--resume</em>.</p>
+          <code>src/agent/session-store.ts</code>
+          <button class="more" type="button" data-layer="2" aria-haspopup="dialog">Read on →</button>
+        </div>
+        <div class="layer">
+          <span class="gr">ΤΑΥΤΟΤΗΣ</span><span class="nm">Identity</span>
+          <p>Durable facts that outlive the task. One canonical store, read by the CLI and the bot alike.</p>
+          <code>src/agent/unified-memory.ts</code>
+          <button class="more" type="button" data-layer="3" aria-haspopup="dialog">Read on →</button>
+        </div>
+        <div class="layer">
+          <span class="gr">ΕΠΕΙΣΟΔΙΑ</span><span class="nm">Episodes</span>
+          <p>Each finished task captured whole: what was asked, what was tried, and what actually worked.</p>
+          <button class="more" type="button" data-layer="4" aria-haspopup="dialog">Read on →</button>
+          <code>src/archimedes/episode-capture.ts</code>
+        </div>
+        <div class="layer">
+          <span class="gr">ΟΝΕΙΡΟΣ</span><span class="nm">Dream</span>
+          <p>Episodes consolidated into lessons — a day of work reduced to the part worth carrying forward.</p>
+          <code>src/agent/memory-consolidate.ts</code>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="night" id="loop">
+  <div class="widest">
+    <div class="label rv">03 — How she works</div>
     <h2 class="rv d1">A loop, not a guess.</h2>
     <p class="body-text rv d2">Read the context, form a plan, execute precisely, verify the result. If verification fails she doesn’t retry blindly — she diagnoses, adjusts, and re-executes.</p>
     <div class="steps rv d3">
-      <div class="step"><div class="n">I</div><div class="name">Read</div><p>Files, structure, dependencies — before touching anything.</p></div>
-      <div class="step"><div class="n">II</div><div class="name">Plan</div><p>Decides what to change and how. Minimal, targeted.</p></div>
-      <div class="step"><div class="n">III</div><div class="name">Execute</div><p>Writes code, runs commands, makes precise edits.</p></div>
-      <div class="step"><div class="n">IV</div><div class="name">Verify</div><p>Runs tests, checks integrity, confirms the change.</p></div>
-      <div class="step"><div class="n">V</div><div class="name">Report</div><p>Summarizes what was done and what passed.</p></div>
+      <div class="step"><div class="n">Α</div><div class="name">Read</div><p>Files, structure, dependencies — before touching anything.</p></div>
+      <div class="step"><div class="n">Β</div><div class="name">Plan</div><p>Decides what to change and how. Minimal, targeted.</p></div>
+      <div class="step"><div class="n">Γ</div><div class="name">Execute</div><p>Writes code, runs commands, makes precise edits.</p></div>
+      <div class="step"><div class="n">Δ</div><div class="name">Verify</div><p>Runs tests, checks integrity, confirms the change.</p></div>
+      <div class="step"><div class="n">Ε</div><div class="name">Report</div><p>Summarizes what was done and what passed.</p></div>
     </div>
     <div class="term rv d4" id="terminal">
       <div class="lbl">terminal</div>
@@ -316,39 +676,52 @@
       <div class="line" data-type="→ Read context: 14 files scanned" data-cls="muted"></div>
       <div class="line" data-type="→ Plan: 3-step execution strategy" data-cls="muted"></div>
       <div class="line" data-type="→ Execute: edited src/auth/handler.ts (line 47)" data-cls="muted"></div>
-      <div class="line" data-type="→ Verify: 1,121 tests passing, 0 regressions" data-cls="muted"></div>
+      <div class="line" data-type="→ Verify: full suite green, 0 regressions" data-cls="muted"></div>
       <div class="line" data-type="✓ Done. Verified." data-cls="ok" style="margin-top:.4rem"></div>
     </div>
   </div>
 </section>
 
-<section class="terra">
+<section class="light">
   <div class="wide">
-    <div class="label rv">03 — Principles</div>
-    <h2 class="rv d1">Rules she never breaks.</h2>
-    <ol class="principles">
-      <li class="rv"><span class="num">01</span><div><strong>I don’t try. I verify.</strong><span class="b">I run the test. I check the diff. I read the output. That’s not confidence — it’s evidence.</span></div></li>
-      <li class="rv d1"><span class="num">02</span><div><strong>Read before write. Always.</strong><span class="b">I never edit a file I haven’t read, never assume structure I haven’t seen.</span></div></li>
-      <li class="rv d2"><span class="num">03</span><div><strong>Minimal change, maximum effect.</strong><span class="b">The exact line, the exact function. A surgeon doesn’t amputate to fix a paper cut.</span></div></li>
-      <li class="rv d3"><span class="num">04</span><div><strong>If I broke it, I fix it first.</strong><span class="b">A failure I introduced is an emergency, not a todo. The codebase is never left worse.</span></div></li>
-      <li class="rv d4"><span class="num">05</span><div><strong>Cite specifics. Never generalities.</strong><span class="b">File paths, line numbers, error messages. “Line 47 throws when steps is empty” is actionable.</span></div></li>
-      <li class="rv d5"><span class="num">06</span><div><strong>The loop never ends.</strong><span class="b">Every failure is training data. There is no “done” — only “verified at this point in time.”</span></div></li>
+    <div class="label rv">04 — Principles</div>
+    <h2 class="rv d1">Rules she never breaks.<span class="sub">cut in stone, not chosen per task</span></h2>
+    <ol class="stelae">
+      <li class="stele rv"><span class="num">Α΄</span><strong>I don’t try. I verify.</strong><span class="b">I run the test. I check the diff. I read the output. That’s not confidence — it’s evidence.</span></li>
+      <li class="stele rv d1"><span class="num">Β΄</span><strong>Read before write. Always.</strong><span class="b">I never edit a file I haven’t read, and never assume a structure I haven’t seen.</span></li>
+      <li class="stele rv d2"><span class="num">Γ΄</span><strong>Minimal change, maximum effect.</strong><span class="b">The exact line, the exact function. A surgeon doesn’t amputate to fix a paper cut.</span></li>
+      <li class="stele rv d3"><span class="num">Δ΄</span><strong>If I broke it, I fix it first.</strong><span class="b">A failure I introduced is an emergency, not a todo. The codebase is never left worse than I found it.</span></li>
+      <li class="stele rv d4"><span class="num">Ε΄</span><strong>Cite specifics. Never generalities.</strong><span class="b">File paths, line numbers, error messages. “Line 47 throws when steps is empty” is actionable.</span></li>
+      <li class="stele rv d5"><span class="num">ΣΤ΄</span><strong>The loop never ends.</strong><span class="b">Every failure is training data. There is no “done” — only “verified at this point in time.”</span></li>
     </ol>
   </div>
 </section>
 
-<section class="dark">
+<div class="meander" aria-hidden="true"></div>
+
+<section class="band">
+  <img src="athos-cliff.jpg" width="1536" height="1024" alt="Byzantine monasteries built out on the sheer cliffs of the Holy Mountain, the Aegean below them at sunset" loading="lazy">
+  <div class="band-inner">
+    <div class="label rv">05 — Persistence</div>
+    <h2 class="rv d1">Twenty houses on one mountain.<span class="sub">and every one of them keeps its own library</span></h2>
+    <p class="body-text rv d2">On the Holy Mountain the monasteries are built out over the drop, on ledges cut into rock that gives nothing away for free. They have stood there for a thousand years for one unglamorous reason: <strong>somebody wrote everything down, and somebody else kept it.</strong></p>
+    <p class="body-text rv d3">That is the whole argument for the six columns. An agent that forgets what it learned yesterday isn’t an agent — it’s an autocomplete with a shell. Aura writes the episode down when the task ends, consolidates it while you sleep, and reads it back before she touches your code again.</p>
+  </div>
+</section>
+
+<section class="night">
   <div class="widest">
-    <div class="label rv">04 — Capability</div>
-    <h2 class="rv d1">Six commands. Every model.</h2>
+    <div class="label rv">06 — Capability</div>
+    <h2 class="rv d1">The agora.<span class="sub">every mode, every model, one command</span></h2>
     <div class="twocol">
       <div class="rv d2">
         <div class="sublabel">Modes</div>
         <div class="rowlist">
           <div class="r"><code>normal</code><span class="d">Single-agent loop: read → plan → execute → verify.</span></div>
-          <div class="r"><code>:research</code><span class="d">Multi-step research, saved as a cited report.</span></div>
-          <div class="r"><code>:council</code><span class="d">5 independent agents, synthesized into one verdict.</span></div>
-          <div class="r"><code>:dream</code><span class="d">Consolidates a day’s work into lessons.</span></div>
+          <div class="r"><code>--orchestrate</code><span class="d">Researcher, Coder and Reviewer, working in concert.</span></div>
+          <div class="r"><code>--architect</code><span class="d">Design and blueprint before a line is implemented.</span></div>
+          <div class="r"><code>--verify</code><span class="d">Post-task checks, with automatic retry on failure.</span></div>
+          <div class="r"><code>--analyze</code><span class="d">Scans session history for repeating failure patterns.</span></div>
         </div>
       </div>
       <div class="rv d3">
@@ -357,48 +730,210 @@
           <div class="r"><span class="pname">Claude</span><span class="d">Opus · Sonnet · Haiku</span></div>
           <div class="r"><span class="pname">GPT</span><span class="d">gpt-4o · gpt-4o-mini</span></div>
           <div class="r"><span class="pname">Gemini</span><span class="d">2.5 pro · 2.5 flash</span></div>
-          <div class="r"><span class="pname">DeepSeek</span><span class="d">v4-pro · v4-flash</span></div>
-          <div class="r"><span class="pname">OpenCode Zen</span><span class="d">free + paid tiers</span></div>
-          <div class="r"><span class="pname">Ollama</span><span class="d">any local model</span></div>
+          <div class="r"><span class="pname">MiMo</span><span class="d">mimo-v2.5-pro · mimo-v2.5</span></div>
+          <div class="r"><span class="pname">GLM</span><span class="d">glm-5.2 · 5.1 · 5</span></div>
+          <div class="r"><span class="pname">Ollama</span><span class="d">any local model, no API key</span></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="terra">
-  <div class="stats4">
-    <div class="rv"><div class="v" data-count="1121" data-suffix="+">0</div><div class="l">Tests passing</div></div>
-    <div class="rv d1"><div class="v" data-count="0">0</div><div class="l">Failures</div></div>
-    <div class="rv d2"><div class="v" data-count="10" data-suffix="+">0</div><div class="l">Providers</div></div>
-    <div class="rv d3"><div class="v">MIT</div><div class="l">Licensed</div></div>
+<section class="light" id="droid">
+  <div class="widest">
+    <div class="label rv">07 — On the move</div>
+    <h2 class="rv d1">Aura Droid.<span class="sub">the same agent, carried in a pocket</span></h2>
+    <p class="body-text rv d2">A temple is not a portable thing, and neither, usually, is a coding agent — it lives on the machine with the repository on it. <strong>Aura Droid is the official Android client:</strong> it talks to your Aura instance, local or remote, and gives you the whole conversation on a phone.</p>
+    <div class="droid rv d3">
+      <div class="shots">
+        <figure><img src="droid-sessions.jpg" width="450" height="1000" alt="Aura Droid session list on an Android phone" loading="lazy"><figcaption>Sessions — pin, archive, resume</figcaption></figure>
+        <figure><img src="droid-chat.jpg" width="450" height="1000" alt="A conversation thread in the Aura Droid Android app" loading="lazy"><figcaption>The thread, with markdown and code</figcaption></figure>
+        <figure><img src="droid-memory.jpg" width="450" height="1000" alt="The memory screen of the Aura Droid Android app" loading="lazy"><figcaption>Memory — the six layers, on the phone</figcaption></figure>
+      </div>
+      <div class="droid-notes">
+        <div class="rowlist light">
+          <div class="r"><code>approval</code><span class="d">Ask on every action, or auto-approve.</span></div>
+          <div class="r"><code>sandbox-out</code><span class="d">Work past the app’s sandbox, on your say-so.</span></div>
+          <div class="r"><code>modes</code><span class="d">Coder, Gazelle and Architect.</span></div>
+          <div class="r"><code>sessions</code><span class="d">Pin, archive and resume, in a local database.</span></div>
+        </div>
+        <p class="body-text rv" style="margin-top:1.4rem">Kotlin throughout, Jetpack Compose and Material 3, Hilt for injection, Room for the session store, coroutines and flow underneath. Android 8.0 and up. Point it at <code class="inline">http://localhost:8080/</code> or at a server, set a key, and it is the same loop — read, plan, execute, verify, report — on a smaller screen.</p>
+        <div style="margin-top:1.6rem">
+          <a class="btn" href="https://github.com/DusanCar-sudo/aura-droid" target="_blank" rel="noopener">Aura Droid on GitHub →</a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<section class="dark" id="install" style="text-align:center">
-  <div style="max-width:46rem;margin:0 auto">
-    <div class="label rv" style="justify-content:center">05 — Get started</div>
+<section class="stone">
+  <div class="metopes">
+    <div class="metope rv"><div class="v" data-count="6">0</div><div class="l">Memory layers</div></div>
+    <div class="metope rv d1"><div class="v" data-count="1424">0</div><div class="l">Tests passing</div></div>
+    <div class="metope rv d2"><div class="v" data-count="10" data-suffix="+">0</div><div class="l">Providers</div></div>
+    <div class="metope rv d3"><div class="v">MIT</div><div class="l">Licensed</div></div>
+  </div>
+</section>
+
+<section class="light closing" id="install" style="text-align:center">
+  <img src="temple-dusk.jpg" width="1536" height="1024" alt="A Greek temple above the sea in late golden light" loading="lazy">
+  <div style="max-width:48rem;margin:0 auto">
+    <div class="label rv" style="justify-content:center">08 — Get started</div>
     <h2 class="rv d1">Ready to verify?</h2>
-    <p class="body-text rv d2" style="margin:0 auto 2.5rem">Install globally, set one API key, and give her a task in plain English.</p>
+    <p class="body-text rv d2" style="margin:0 auto 2.4rem">Install globally, set one API key, and give her a task in plain English.</p>
     <div class="install-box rv d3" onclick="copyInstall(this)">
-      <span style="color:var(--ruby)">$</span><span>npm install -g aura-code</span><span class="copied" id="copyState">click to copy</span>
+      <span style="color:var(--terracotta)">$</span><span>npm install -g aura-code</span><span class="copied" id="copyState">click to copy</span>
     </div>
-    <div class="rv d4" style="margin-top:1.3rem;font-family:var(--mono);font-size:.82rem;color:#73849a">aura 'your task here'</div>
-    <div class="rv d5" style="margin-top:2.6rem">
+    <div class="rv d4" style="margin-top:1.2rem;font-family:var(--mono);font-size:.8rem;color:var(--ink-3)">aura 'your task here'</div>
+    <div class="rv d5" style="margin-top:2.4rem">
       <a class="btn" href="https://github.com/milodule3-debug/aura-code" target="_blank" rel="noopener">View on GitHub →</a>
     </div>
   </div>
 </section>
+
+<div class="meander" aria-hidden="true"></div>
 
 <footer>
   <p>Aura Code · Built entirely by AI agents · <span class="q">“I don’t try. I verify.”</span></p>
   <p style="margin-top:.7rem">Built by <a href="https://lean-progress-iq.vercel.app" target="_blank" rel="noopener">Lean Progress IQ</a> · <a href="https://github.com/milodule3-debug/aura-code" target="_blank" rel="noopener">Source</a> · <a href="aura-windows-manual.html">Windows Manual</a> · MIT licensed</p>
 </footer>
 
+<div class="scrim" id="scrim" role="dialog" aria-modal="true" aria-labelledby="readingName" hidden>
+  <article class="reading" id="reading">
+    <button class="close" type="button" id="readingClose" aria-label="Close">✕</button>
+    <span class="gr" id="readingGr"></span>
+    <h3 id="readingName"></h3>
+    <div class="src" id="readingSrc"></div>
+    <div id="readingBody"></div>
+    <div class="nav">
+      <button type="button" id="readingPrev">← Previous</button>
+      <span class="idx" id="readingIdx"></span>
+      <button type="button" id="readingNext">Next →</button>
+    </div>
+  </article>
+</div>
+
 <script>
 (function(){
   'use strict';
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ————— the six readings, perception through dream —————
+     Every claim below is drawn from the file named at the top of the card;
+     if the code changes, the card is wrong and should be changed with it. */
+  var LAYERS = [
+    { gr:'ΑΙΣΘΗΣΙΣ', name:'Perception', src:'src/perception/graph-store.ts · src/perception/types.ts',
+      lead:'Before she edits anything, she builds a picture of what she is standing in.',
+      body:[
+        'A <strong>ProjectPerception</strong> is a typed graph of your repository. Its nodes are modules, files, concepts, constraints, decisions and trajectories; its edges each carry a named relationship and a weight. It is not a file listing — it is a description of how the parts hold together.',
+        'It records more than structure. The snapshot also carries <em>trajectory</em> — the project’s vision, what is deprecated, what is in progress, what is planned — and <em>constraints</em>: read-only paths, strict rules, risk areas, and per-module test coverage rated high, medium or low.',
+        'The snapshot is written to <code>.aura/perception.json</code> inside your project, and written <strong>atomically</strong> — to a temporary file, then renamed — so a crash never leaves half a picture behind for the next run to trust.',
+        'It is allowed to go stale on purpose. Anything older than an hour is re-extracted rather than believed. A month-old map of a codebase is worse than no map, because you act on it.',
+        'And it is queried, not merely stored: <code>dependencies</code>, <code>impact</code>, <code>constraints</code>, <code>trajectory</code>, <code>risk</code> and <code>related</code> each return the matching sub-graph plus a written summary.'
+      ]},
+    { gr:'ΠΑΡΟΝ', name:'Context', src:'src/agent/tiered-context.ts',
+      lead:'The working window. When it fills, something has to go — the question is what, and how honestly.',
+      body:[
+        'Three tiers. The <strong>ANCHOR</strong> is <code>history[0]</code>, the original task: never touched, never summarized, never aged out. The <strong>TAIL</strong> is the most recent turns, kept verbatim. The <strong>FACT LOG</strong> is everything in between, reduced to one to three bullet facts per turn — a file changed, a decision made, a value set, a command run and what it returned.',
+        'The fact log is strictly <strong>append-only</strong>. Each compaction pass asks the summary model to bullet-ize only the turns that have newly aged out, and appends them. It never re-summarizes what is already written down. That is not tidiness: it keeps the rendered block a stable prefix followed by a new suffix, which is the only reason a cache breakpoint placed after it actually hits.',
+        'Summarization runs on a separate cheap, fast model — not the session’s main one — so the compaction pass does not eat the savings it exists to create.',
+        'It ships gated behind <code>AURA_CONTEXT_STRATEGY=tiered</code> so it can be A/B-compared against the default escalating-recap strategy rather than replacing it silently. Both fire at the same trigger and keep the same amount of raw recent context. The only variable under test is what happens to the middle.'
+      ]},
+    { gr:'ΛΟΓΟΣ', name:'Session', src:'src/agent/session-store.ts',
+      lead:'The account of the task in progress — and what it cost.',
+      body:[
+        'A <strong>ChatSession</strong> is an id, a title, timestamps, a version and the full history. It is written to disk as the work happens, and <code>--resume</code> picks it back up. It is the thing that lets a task survive a closed terminal.',
+        'It also carries real <strong>usage</strong>: input, output, cached and cache-creation tokens, and cost in US dollars — one entry per provider API call, oldest first, across every run ever saved into that session.',
+        'Those numbers come straight from the provider’s API response. <strong>They are never estimated from the text.</strong> Cost is computed from the same pricing table <code>/stats</code> reads, so the figure she reports and the figure you are billed are the same figure.',
+        'It is written atomically like every other store here, and it deliberately does not import the loop. The thing that keeps the record never depends on the thing being recorded.'
+      ]},
+    { gr:'ΤΑΥΤΟΤΗΣ', name:'Identity', src:'src/agent/unified-memory.ts · src/agent/memory-consolidate.ts',
+      lead:'The facts that outlive the task — and what to do when two of them disagree.',
+      body:[
+        'Aura’s memory used to live in three disconnected places: key-value identity under <code>~/.aura/memory/</code>, episodes and dreams, and chat history. A fact saved by one surface never reached the other. The CLI and the Telegram bot each knew things the other did not.',
+        'Consolidation merged eight overlapping namespaces into two. <code>identity.json</code> holds global identity and facts and is prompt-visible everywhere; <code>project.json</code> holds machine and project state that is not identity — paths, recovery notes, service state.',
+        'The migration is idempotent, and it backs the originals up to <code>~/.aura/memory/.pre-unify-&lt;ts&gt;/</code> before it touches anything.',
+        'Where two namespaces disagreed about the same key, the values are <strong>preserved as a CONFLICT entry</strong> rather than a winner being picked quietly. This is the important part. Auto-dedupe that guesses is exactly how a memory system becomes confidently wrong, and the wrongness is invisible because the losing value is gone.',
+        'The read path is defensive by design: any missing or corrupt file is skipped rather than thrown on, and the whole block is length-capped so identity can never quietly bloat a prompt.'
+      ]},
+    { gr:'ΕΠΕΙΣΟΔΙΑ', name:'Episodes', src:'src/archimedes/episode-capture.ts · src/archimedes/types.ts',
+      lead:'Every finished task, kept whole — including the ones that went badly.',
+      body:[
+        'An <strong>Episode</strong> records the task, the project root, the timestamp, whether the local model was attempted, whether it succeeded, what it produced, and which large model had to be called in when it did not.',
+        'Episodes are stored under <code>~/.aura/episodes/{projectHash}/</code>, where the hash is derived from the project root — so competence is measured <strong>per project, not globally</strong>. What she is reliably good at in one repository tells you nothing about another, and pretending otherwise is how an agent talks itself into a mistake.',
+        'From these, <code>getEpisodeStats</code> computes the totals: local-model successes, local-model failures, how often a large model had to intervene, and whether there is yet enough signal to fine-tune.',
+        'Competence is a ratio over attempts with a floor beneath it — by default 0.7 across at least three attempts — plus an <em>epsilon probe rate</em>, so a small fraction of the time she re-tries a kind of task she had written off. A system that never revisits its own verdicts cannot notice it has improved.',
+        'This is the layer that makes the sixth principle literally true rather than decorative: every failure is training data.'
+      ]},
+    { gr:'ΟΝΕΙΡΟΣ', name:'Dream', src:'src/dream/dream.ts · src/dream/reconcile.ts · src/dream/okf.ts',
+      lead:'A day of work, reduced overnight to the part worth carrying forward.',
+      body:[
+        'Dream spends <strong>exactly one LLM call</strong>. It reads the day’s episodes and writes a dated dream file. That is the entire model budget for the layer.',
+        'Reconciliation — which runs across every dream that exists — is pure statistics. Confidence is a literal ratio, <strong>never a model’s guess about its own certainty</strong>. Asking a model how sure it is produces a number; it does not produce evidence.',
+        'Six verdicts, and they are the interesting part. <em>KEEP</em>: a unique, uncontested claim. <em>STRENGTHEN</em>: the same claim recurred, so confidence rises. <em>MERGE</em>: two related claims become one. <em>SUPERSEDE</em>: a newer claim replaces an older one. <em>DROP</em>: a duplicate or something now obsolete. And <em>CONFLICT</em>: two claims contradict each other — <strong>both are surfaced, neither is resolved.</strong>',
+        'That last verdict is the design. A memory system that always produces one tidy answer is a system that has learned to hide its contradictions from you, and it will keep doing so right up until the contradiction matters.',
+        'The output is <code>.reconciled.md</code>, injected into the system prompt for her own use — and a portable OKF knowledge bundle under <code>knowledge/</code>, so the same understanding can be read by another agent, another tool, or a person who does not have her installed.'
+      ]}
+  ];
+
+  /* ————— the reading: open one layer's full story ————— */
+  var scrim = document.getElementById('scrim');
+  var elGr = document.getElementById('readingGr'), elName = document.getElementById('readingName');
+  var elSrc = document.getElementById('readingSrc'), elBody = document.getElementById('readingBody');
+  var elIdx = document.getElementById('readingIdx');
+  var btnPrev = document.getElementById('readingPrev'), btnNext = document.getElementById('readingNext');
+  var current = -1, lastFocus = null;
+
+  function render(i){
+    var L = LAYERS[i]; if (!L) return;
+    current = i;
+    elGr.textContent = L.gr;
+    elName.textContent = L.name;
+    elSrc.textContent = L.src;
+    elBody.innerHTML = '<p class="lead">' + L.lead + '</p>' +
+      L.body.map(function(p){ return '<p>' + p + '</p>'; }).join('');
+    elIdx.textContent = (i + 1) + ' / ' + LAYERS.length;
+    btnPrev.disabled = i === 0;
+    btnNext.disabled = i === LAYERS.length - 1;
+    document.getElementById('reading').scrollTop = 0;
+  }
+  function openReading(i){
+    lastFocus = document.activeElement;
+    render(i);
+    scrim.hidden = false;
+    scrim.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('readingClose').focus();
+  }
+  function closeReading(){
+    scrim.classList.remove('open');
+    scrim.hidden = true;
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    current = -1;
+  }
+  document.querySelectorAll('[data-layer]').forEach(function(el){
+    el.addEventListener('click', function(){ openReading(+el.getAttribute('data-layer')); });
+  });
+  document.getElementById('readingClose').addEventListener('click', closeReading);
+  btnPrev.addEventListener('click', function(){ if (current > 0) render(current - 1); });
+  btnNext.addEventListener('click', function(){ if (current < LAYERS.length - 1) render(current + 1); });
+  /* a click on the scrim itself closes; a click inside the panel must not */
+  scrim.addEventListener('click', function(e){ if (e.target === scrim) closeReading(); });
+  document.addEventListener('keydown', function(e){
+    if (scrim.hidden) return;
+    if (e.key === 'Escape') { closeReading(); return; }
+    if (e.key === 'ArrowLeft' && current > 0) render(current - 1);
+    if (e.key === 'ArrowRight' && current < LAYERS.length - 1) render(current + 1);
+    /* keep the tab ring inside the dialog while it is open */
+    if (e.key === 'Tab') {
+      var f = scrim.querySelectorAll('button:not(:disabled)');
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
 
   /* nav background on scroll */
   var nav = document.getElementById('topnav');
@@ -410,53 +945,32 @@
     entries.forEach(function(e){
       if (e.isIntersecting){ e.target.classList.add('revealed'); io.unobserve(e.target); }
     });
-  }, {threshold:.18, rootMargin:'0px 0px -6% 0px'});
+  }, {threshold:.16, rootMargin:'0px 0px -6% 0px'});
   document.querySelectorAll('.rv:not(.revealed)').forEach(function(el){
     if (reduced) el.classList.add('revealed'); else io.observe(el);
   });
   document.querySelectorAll('section').forEach(function(s){
     if (!reduced){
-      var so = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('revealed'); so.unobserve(e.target);} }); },{threshold:.12});
+      var so = new IntersectionObserver(function(es){
+        es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('revealed'); so.unobserve(e.target);} });
+      },{threshold:.1});
       so.observe(s);
     } else s.classList.add('revealed');
   });
 
-  /* crystal glows on the painting — image-space coords mapped through
-     object-fit:cover (object-position: center 20%) so they stay anchored
-     to the diamonds at any container size. */
-  var IW = 784, IH = 1168;
-  var WHITES = [
-    [.510,.300,150],[.421,.277,90],[.610,.332,110],[.334,.353,150],
-    [.233,.417,110],[.392,.420,80],[.302,.471,100],[.453,.623,150],
-    [.440,.764,110],[.497,.752,90],[.357,.799,90]
-  ];
-  var RUBY = [.500,.387,210];
-  var drift = document.getElementById('drift');
-  var crystalHost = document.getElementById('crystals');
-  var rubyEl = null, crystalEls = [];
-  WHITES.forEach(function(c,i){
-    var d = document.createElement('div');
-    d.className = 'crystal w';
-    d.style.animationDelay = (i * .42 % 2.6).toFixed(2) + 's';
-    crystalHost.appendChild(d); crystalEls.push({el:d, c:c});
-  });
-  rubyEl = document.createElement('div');
-  rubyEl.className = 'crystal ruby';
-  crystalHost.appendChild(rubyEl); crystalEls.push({el:rubyEl, c:RUBY});
-  function layoutCrystals(){
-    var cw = drift.clientWidth, ch = drift.clientHeight;
-    if (!cw || !ch) return;
-    var s = Math.max(cw/IW, ch/IH), w = IW*s, h = IH*s;
-    var ox = (cw - w) * .5, oy = (ch - h) * .2;   /* object-position: center 20% */
-    crystalEls.forEach(function(o){
-      o.el.style.left = (ox + o.c[0]*w) + 'px';
-      o.el.style.top  = (oy + o.c[1]*h) + 'px';
-      o.el.style.width = o.el.style.height = (o.c[2]*s) + 'px';
-    });
+  /* the colonnade lights column by column as it comes into view, left to right,
+     the way the sun crosses a temple front in the morning */
+  var cols = document.querySelectorAll('.colonnade .col');
+  if (cols.length && !reduced){
+    cols.forEach(function(c,i){ c.style.transition = 'opacity .8s ' + (i*.09).toFixed(2) + 's, transform .8s ' + (i*.09).toFixed(2) + 's';
+      c.style.opacity = 0; c.style.transform = 'translateY(26px)'; });
+    new IntersectionObserver(function(es,obs){
+      es.forEach(function(e){
+        if (!e.isIntersecting) return; obs.disconnect();
+        cols.forEach(function(c){ c.style.opacity = 1; c.style.transform = 'none'; });
+      });
+    },{threshold:.25}).observe(document.querySelector('.colonnade'));
   }
-  layoutCrystals();
-  addEventListener('resize', layoutCrystals);
-  if (document.readyState !== 'complete') addEventListener('load', layoutCrystals);
 
   /* terminal typing */
   var term = document.getElementById('terminal');
@@ -479,9 +993,11 @@
     }
     setTimeout(nextLine, 350);
   }
-  new IntersectionObserver(function(es,obs){ es.forEach(function(e){ if(e.isIntersecting){ typeLines(); obs.disconnect(); } }); },{threshold:.4}).observe(term);
+  new IntersectionObserver(function(es,obs){
+    es.forEach(function(e){ if(e.isIntersecting){ typeLines(); obs.disconnect(); } });
+  },{threshold:.4}).observe(term);
 
-  /* stat count-up */
+  /* count-up */
   document.querySelectorAll('[data-count]').forEach(function(el){
     new IntersectionObserver(function(es,obs){
       es.forEach(function(e){
@@ -497,24 +1013,24 @@
         }
         requestAnimationFrame(tick);
       });
-    },{threshold:0,rootMargin:'0px 0px 0px 0px'}).observe(el);
+    },{threshold:0}).observe(el);
   });
 
-  /* orb particles — slow blue motes rising; excite makes them sparkle after a click */
+  /* pollen — warm motes drifting on the thermals off hot stone */
   var excite = 0;
-  var canvas = document.getElementById('embers');
+  var canvas = document.getElementById('motes');
   if (canvas && !reduced){
     var ctx = canvas.getContext('2d'), motes = [], W, H;
     function resize(){ W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
     resize(); addEventListener('resize', resize);
-    var N = Math.min(46, Math.floor(innerWidth/28));
-    for (var i=0;i<N;i++) motes.push(spawn(true));
     function spawn(anywhere){
       return { x: Math.random()*W, y: anywhere ? Math.random()*H : H + 12,
-        r: .7 + Math.random()*1.9, vy: .12 + Math.random()*.4, vx: (Math.random()-.5)*.14,
-        ph: Math.random()*Math.PI*2, sp: .004 + Math.random()*.01,
-        hue: 188 + Math.random()*22 };
+        r: .7 + Math.random()*1.8, vy: .10 + Math.random()*.34, vx: (Math.random()-.5)*.14,
+        ph: Math.random()*Math.PI*2, sp: .004 + Math.random()*.009,
+        hue: 36 + Math.random()*16 };
     }
+    var N = Math.min(40, Math.floor(innerWidth/32));
+    for (var i=0;i<N;i++) motes.push(spawn(true));
     var visible = true;
     document.addEventListener('visibilitychange', function(){ visible = !document.hidden; });
     (function frame(){
@@ -523,28 +1039,26 @@
       excite *= .985;
       ctx.clearRect(0,0,W,H);
       for (var i=0;i<motes.length;i++){
-        var m = motes[i];
-        var speed = 1 + excite*3;
+        var m = motes[i], speed = 1 + excite*3;
         m.y -= m.vy*speed; m.x += (m.vx + Math.sin(m.ph)*.16)*speed; m.ph += m.sp*8*(1+excite*4);
         if (m.y < -14){ motes[i] = spawn(false); continue; }
         var breath = .35 + .65*(.5 + .5*Math.sin(m.ph));
-        var twinkle = 1 + excite*(0.9 + 0.9*Math.sin(m.ph*7));
-        var a = Math.min(1, 0.5*breath*twinkle);
+        var a = Math.min(1, .34*breath*(1 + excite));
         var g = ctx.createRadialGradient(m.x,m.y,0,m.x,m.y,m.r*5);
-        g.addColorStop(0,'hsla('+m.hue+',85%,'+(72+Math.min(20,excite*20))+'%,'+a+')');
-        g.addColorStop(1,'hsla('+m.hue+',85%,60%,0)');
+        g.addColorStop(0,'hsla('+m.hue+',88%,'+(64+Math.min(18,excite*18))+'%,'+a+')');
+        g.addColorStop(1,'hsla('+m.hue+',88%,58%,0)');
         ctx.fillStyle = g;
         ctx.beginPath(); ctx.arc(m.x,m.y,m.r*5,0,7); ctx.fill();
       }
     })();
   }
 
-  /* click sparkles — a burst of glittering orbs from any glowing button */
+  /* gold dust off any button you strike */
   var sparkCanvas = document.getElementById('sparks');
   var sparks = [], sparkCtx = null, sparkRunning = false;
   if (sparkCanvas && !reduced){
     sparkCtx = sparkCanvas.getContext('2d');
-    function sresize(){ sparkCanvas.width = innerWidth; sparkCanvas.height = innerHeight; }
+    var sresize = function(){ sparkCanvas.width = innerWidth; sparkCanvas.height = innerHeight; };
     sresize(); addEventListener('resize', sresize);
   }
   function sparkFrame(){
@@ -552,15 +1066,15 @@
     sparkCtx.clearRect(0,0,sparkCanvas.width,sparkCanvas.height);
     for (var i=sparks.length-1;i>=0;i--){
       var p = sparks[i];
-      p.x += p.vx; p.y += p.vy; p.vy += .015; p.vx *= .995;
-      p.life -= .011; p.ph += p.tw;
+      p.x += p.vx; p.y += p.vy; p.vy += .018; p.vx *= .995;
+      p.life -= .012; p.ph += p.tw;
       if (p.life <= 0){ sparks.splice(i,1); continue; }
       var tw = .35 + .65*Math.abs(Math.sin(p.ph));
       var a = Math.min(1, p.life*1.6) * tw;
       var g = sparkCtx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*4);
-      g.addColorStop(0,'hsla('+p.hue+',90%,82%,'+a+')');
-      g.addColorStop(.4,'hsla('+p.hue+',90%,68%,'+(a*.5)+')');
-      g.addColorStop(1,'hsla('+p.hue+',90%,60%,0)');
+      g.addColorStop(0,'hsla('+p.hue+',92%,74%,'+a+')');
+      g.addColorStop(.4,'hsla('+p.hue+',92%,62%,'+(a*.5)+')');
+      g.addColorStop(1,'hsla('+p.hue+',92%,55%,0)');
       sparkCtx.fillStyle = g;
       sparkCtx.beginPath(); sparkCtx.arc(p.x,p.y,p.r*4,0,7); sparkCtx.fill();
     }
@@ -569,13 +1083,13 @@
   }
   function burst(x,y){
     if (!sparkCtx) return;
-    for (var i=0;i<30;i++){
-      var ang = Math.random()*Math.PI*2, sp = .4 + Math.random()*2.4;
+    for (var i=0;i<28;i++){
+      var ang = Math.random()*Math.PI*2, sp = .4 + Math.random()*2.3;
       sparks.push({ x:x, y:y,
-        vx: Math.cos(ang)*sp, vy: Math.sin(ang)*sp - (0.8 + Math.random()*1.6),
-        r: .5 + Math.random()*1.4, life: .7 + Math.random()*.5,
+        vx: Math.cos(ang)*sp, vy: Math.sin(ang)*sp - (0.8 + Math.random()*1.5),
+        r: .5 + Math.random()*1.3, life: .7 + Math.random()*.5,
         ph: Math.random()*Math.PI*2, tw: .25 + Math.random()*.4,
-        hue: Math.random() < .75 ? 188 + Math.random()*22 : 20 + Math.random()*18 });
+        hue: Math.random() < .7 ? 40 + Math.random()*12 : 16 + Math.random()*10 });
     }
     if (!sparkRunning){ sparkRunning = true; requestAnimationFrame(sparkFrame); }
   }
@@ -584,16 +1098,10 @@
     if (!b || reduced) return;
     burst(e.clientX, e.clientY);
     excite = 1;
-    if (rubyEl){
-      rubyEl.classList.remove('flare');
-      void rubyEl.offsetWidth;                 /* restart the flare animation */
-      rubyEl.classList.add('flare');
-      setTimeout(function(){ rubyEl.classList.remove('flare'); }, 950);
-    }
   });
 
-  /* cursor aura — a soft light that follows the pointer */
-  var aura = document.getElementById('cursorAura');
+  /* a patch of sunlight that follows the pointer across the marble */
+  var aura = document.getElementById('sunAura');
   if (aura && !reduced && matchMedia('(pointer:fine)').matches){
     var tx = innerWidth/2, ty = innerHeight*0.4, cx = tx, cy = ty;
     addEventListener('mousemove', function(e){ tx = e.clientX; ty = e.clientY; }, {passive:true});
