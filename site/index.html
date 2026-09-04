@@ -90,7 +90,7 @@
     overflow:hidden;background:var(--marble);z-index:3}
   .hero-art{position:absolute;inset:0;z-index:0;overflow:hidden}
   .hero-art img{position:absolute;inset:-4%;width:108%;height:108%;object-fit:cover;
-    object-position:68% 55%;animation:drift 22s ease-in-out infinite;will-change:transform}
+    object-position:62% 52%;animation:drift 22s ease-in-out infinite;will-change:transform}
   /* the veil: marble poured across the left so the type has stone to sit on */
   .hero-art::after{content:"";position:absolute;inset:0;
     background:linear-gradient(97deg,var(--marble) 0%,rgba(251,246,234,.97) 26%,rgba(251,246,234,.72) 44%,rgba(251,246,234,.12) 62%,transparent 76%),
@@ -251,6 +251,56 @@
   .layer p{font-size:.85rem;color:var(--ink-2);line-height:1.6;margin-bottom:.6rem}
   .layer code{font-family:var(--mono);font-size:.63rem;color:#8a7245;
     word-break:normal;overflow-wrap:anywhere;display:block;line-height:1.55}
+  .layer .more{margin-top:.55rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--terracotta);background:none;border:0;padding:0;
+    cursor:pointer;border-bottom:1px solid rgba(181,67,43,.35);transition:border-color .3s}
+  .layer .more:hover{border-color:var(--terracotta)}
+  /* the columns are buttons, so a keyboard reaches the same story a cursor does */
+  .col{background:none;border:0;font:inherit;color:inherit;width:100%}
+  .col:focus-visible,.layer .more:focus-visible{outline:2px solid var(--terracotta);
+    outline-offset:3px;border-radius:2px}
+
+  /* ————— the reading: one layer's full story ————— */
+  .scrim{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;
+    padding:5vh 5vw;background:rgba(40,28,10,.42);backdrop-filter:blur(3px)}
+  .scrim.open{display:flex}
+  .reading{position:relative;max-width:44rem;width:100%;max-height:90vh;overflow-y:auto;
+    background:linear-gradient(168deg,#fffdf7,var(--marble-2));border:1px solid rgba(154,126,80,.4);
+    border-top:4px solid var(--gold);border-radius:4px;padding:2.6rem 2.8rem 2.2rem;
+    box-shadow:0 34px 90px rgba(50,32,8,.34)}
+  .reading .gr{font-family:var(--serif);font-size:1.5rem;letter-spacing:.2em;color:var(--gold);
+    display:block;margin-bottom:.1rem}
+  .reading h3{font-family:var(--inscr);font-weight:500;font-size:1.9rem;color:var(--ink);
+    letter-spacing:.02em;margin-bottom:.5rem;line-height:1.2}
+  .reading .src{font-family:var(--mono);font-size:.68rem;color:#8a7245;margin-bottom:1.5rem;
+    padding-bottom:1.2rem;border-bottom:1px solid rgba(154,126,80,.3);word-break:normal;
+    overflow-wrap:anywhere}
+  .reading p{font-size:1rem;color:var(--ink-2);margin-bottom:1rem;line-height:1.72}
+  .reading p strong{color:var(--ink);font-weight:500}
+  .reading p em{color:#7a5a1e;font-style:italic}
+  .reading .lead{font-family:var(--serif);font-size:1.22rem;font-style:italic;color:var(--aegean-deep);
+    margin-bottom:1.3rem;line-height:1.5}
+  .reading code{font-family:var(--mono);font-size:.84em;color:#7a5a1e;
+    background:rgba(176,135,60,.12);padding:.1em .35em;border-radius:2px}
+  .reading .close{position:absolute;top:1rem;right:1.1rem;width:2.1rem;height:2.1rem;
+    display:flex;align-items:center;justify-content:center;font-size:1.3rem;line-height:1;
+    background:none;border:1px solid transparent;border-radius:50%;color:var(--ink-3);
+    cursor:pointer;transition:color .25s,border-color .25s,background .25s}
+  .reading .close:hover{color:var(--terracotta);border-color:rgba(181,67,43,.4);
+    background:rgba(255,255,255,.7)}
+  .reading .nav{display:flex;justify-content:space-between;gap:1rem;margin-top:1.9rem;
+    padding-top:1.3rem;border-top:1px solid rgba(154,126,80,.3)}
+  .reading .nav button{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-2);background:none;border:0;cursor:pointer;
+    padding:.3rem 0;transition:color .25s}
+  .reading .nav button:hover:not(:disabled){color:var(--terracotta)}
+  .reading .nav button:disabled{opacity:.32;cursor:default}
+  .reading .nav .idx{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;
+    color:var(--ink-3);align-self:center}
+  @media (max-width:620px){
+    .reading{padding:2.2rem 1.5rem 1.8rem}
+    .reading h3{font-size:1.5rem}
+  }
 
   /* ————— the loop ————— */
   .steps{display:flex;flex-wrap:wrap;justify-content:space-between;position:relative;
@@ -303,14 +353,38 @@
     text-shadow:0 1px 0 rgba(255,255,255,.9)}
   .stele span.b{font-size:.92rem;color:var(--ink-2)}
 
-  /* ————— the Athos band ————— */
+  /* ————— full-bleed photographic bands ————— */
   .band{position:relative;padding:0;min-height:640px;display:flex;align-items:center;
     overflow:hidden;z-index:3}
   .band img{position:absolute;inset:-3%;width:106%;height:106%;object-fit:cover;
-    object-position:64% 50%;z-index:0}
+    object-position:62% 50%;z-index:0}
+  /* These photographs are far busier than a flat colour, so the veil has to
+     hold longer across the type than a decorative wash would. */
   .band::after{content:"";position:absolute;inset:0;z-index:1;
-    background:linear-gradient(96deg,var(--marble) 0%,rgba(251,246,234,.96) 32%,rgba(251,246,234,.8) 46%,rgba(251,246,234,.18) 62%,transparent 76%)}
+    background:linear-gradient(96deg,var(--marble) 0%,rgba(251,246,234,.97) 34%,rgba(251,246,234,.88) 48%,rgba(251,246,234,.24) 64%,transparent 78%)}
   .band-inner{position:relative;z-index:2;padding:6rem 7vw;max-width:60rem}
+
+  /* a short band that carries an inscription and nothing else */
+  .plate{position:relative;min-height:420px;display:flex;align-items:center;
+    justify-content:center;overflow:hidden;z-index:3;padding:0}
+  .plate img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    object-position:50% 42%;z-index:0}
+  .plate::after{content:"";position:absolute;inset:0;z-index:1;
+    background:radial-gradient(ellipse 60% 82% at 50% 50%,rgba(251,246,234,.9),rgba(251,246,234,.5) 60%,rgba(251,246,234,.16) 100%)}
+  .plate-inner{position:relative;z-index:2;text-align:center;padding:3rem 7vw}
+  .plate-inner .gr{font-family:var(--serif);font-size:clamp(1.5rem,3.4vw,2.4rem);
+    letter-spacing:.34em;color:#5f4310;text-indent:.34em;
+    text-shadow:0 1px 0 rgba(255,255,255,.6)}
+  .plate-inner p{margin-top:.9rem;font-family:var(--mono);font-size:.68rem;letter-spacing:.22em;
+    text-transform:uppercase;color:#6d5a34}
+
+  /* the closing band: the picture sits behind the type as warmth, not subject */
+  .closing{position:relative;overflow:hidden}
+  .closing>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    object-position:52% 58%;z-index:0}
+  .closing::after{content:"";position:absolute;inset:0;z-index:1;
+    background:radial-gradient(ellipse 68% 74% at 50% 48%,rgba(251,246,234,.95),rgba(251,246,234,.86) 54%,rgba(251,246,234,.72) 100%)}
+  .closing>div{position:relative;z-index:2}
 
   /* ————— capability ————— */
   .twocol{display:grid;grid-template-columns:1fr 1fr;gap:2.4rem;align-items:start;margin-top:1.4rem}
@@ -327,6 +401,31 @@
     font-weight:500}
   .rowlist .d{font-size:.88rem;color:#a9c4d0;text-align:right}
   .rowlist .pname{font-family:var(--inscr);font-size:1rem;color:#eaf4f7;letter-spacing:.03em}
+
+  /* ————— Aura Droid ————— */
+  .droid{display:grid;grid-template-columns:1.05fr .95fr;gap:3rem;align-items:center;margin-top:2.6rem}
+  .droid .shots{display:flex;gap:1rem;align-items:flex-end}
+  .droid figure{flex:1 1 0;min-width:0}
+  /* the phones are shown at a slight fan, the middle one nearest */
+  .droid figure:nth-child(1){transform:rotate(-2.4deg) translateY(10px)}
+  .droid figure:nth-child(3){transform:rotate(2.4deg) translateY(10px)}
+  .droid figure img{width:100%;height:auto;border-radius:12px;
+    border:1px solid rgba(154,126,80,.4);box-shadow:0 18px 44px rgba(70,46,12,.2);
+    transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s}
+  .droid figure:hover img{transform:translateY(-8px);box-shadow:0 26px 60px rgba(70,46,12,.28)}
+  .droid figcaption{margin-top:.8rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-3);text-align:center;line-height:1.5}
+  .rowlist.light{border-color:rgba(154,126,80,.34)}
+  .rowlist.light .r{background:rgba(255,255,255,.55);border-bottom-color:rgba(154,126,80,.22)}
+  .rowlist.light .r:hover{background:#fff}
+  .rowlist.light code{color:#8a5f22}
+  .rowlist.light .d{color:var(--ink-2)}
+  code.inline{font-family:var(--mono);font-size:.86em;color:#7a5a1e;
+    background:rgba(176,135,60,.14);padding:.1em .35em;border-radius:2px}
+  @media (max-width:900px){
+    .droid{grid-template-columns:1fr;gap:2.2rem}
+    .droid .shots{max-width:34rem;margin:0 auto}
+  }
 
   /* ————— the frieze of numbers ————— */
   .metopes{max-width:66rem;margin:0 auto;display:grid;
@@ -428,6 +527,7 @@
   <a href="#identity">About</a>
   <a href="#memory">Memory</a>
   <a href="#loop">How it works</a>
+  <a href="#droid">Android</a>
   <a href="#install">Install</a>
   <a href="aura-windows-manual.html">Windows Manual</a>
   <a href="https://github.com/milodule3-debug/aura-code" target="_blank" rel="noopener">GitHub →</a>
@@ -435,7 +535,7 @@
 
 <header class="hero" id="start">
   <div class="hero-art">
-    <img src="greece-hero.svg" alt="Watercolour of a Doric temple on a headland above the Aegean, the Holy Mountain standing behind it" fetchpriority="high">
+    <img src="hero-temple.jpg" width="1408" height="768" alt="Watercolour of a Doric temple standing on a headland above the Aegean, a mountain range and open sea beyond it" fetchpriority="high">
   </div>
   <div class="hero-inner">
     <div class="kicker rv revealed">Autonomous Coding Agent</div>
@@ -472,6 +572,14 @@
   </div>
 </section>
 
+<section class="plate">
+  <img src="orders.jpg" width="1800" height="771" alt="Four Greek column orders standing on a stone terrace above a Mediterranean landscape" loading="lazy">
+  <div class="plate-inner">
+    <span class="gr">ΤΑΞΙΣ</span>
+    <p>The arrangement that holds a thing up</p>
+  </div>
+</section>
+
 <section class="stone" id="memory">
   <div class="widest">
     <div class="label rv">02 — Memory</div>
@@ -499,12 +607,12 @@
         <div class="architrave">one running context</div>
       </div>
       <div class="colonnade">
-        <div class="col"><div class="glow"></div><svg viewBox="0 0 64 178"><use href="#doric"/></svg></div>
-        <div class="col"><div class="glow"></div><svg viewBox="0 0 64 178"><use href="#doric"/></svg></div>
-        <div class="col"><div class="glow"></div><svg viewBox="0 0 64 178"><use href="#doric"/></svg></div>
-        <div class="col"><div class="glow"></div><svg viewBox="0 0 64 178"><use href="#doric"/></svg></div>
-        <div class="col"><div class="glow"></div><svg viewBox="0 0 64 178"><use href="#doric"/></svg></div>
-        <div class="col"><div class="glow"></div><svg viewBox="0 0 64 178"><use href="#doric"/></svg></div>
+        <button class="col" type="button" data-layer="0" aria-haspopup="dialog" aria-label="Read the full story of the Perception layer"><span class="glow"></span><svg viewBox="0 0 64 178" aria-hidden="true"><use href="#doric"/></svg></button>
+        <button class="col" type="button" data-layer="1" aria-haspopup="dialog" aria-label="Read the full story of the Context layer"><span class="glow"></span><svg viewBox="0 0 64 178" aria-hidden="true"><use href="#doric"/></svg></button>
+        <button class="col" type="button" data-layer="2" aria-haspopup="dialog" aria-label="Read the full story of the Session layer"><span class="glow"></span><svg viewBox="0 0 64 178" aria-hidden="true"><use href="#doric"/></svg></button>
+        <button class="col" type="button" data-layer="3" aria-haspopup="dialog" aria-label="Read the full story of the Identity layer"><span class="glow"></span><svg viewBox="0 0 64 178" aria-hidden="true"><use href="#doric"/></svg></button>
+        <button class="col" type="button" data-layer="4" aria-haspopup="dialog" aria-label="Read the full story of the Episodes layer"><span class="glow"></span><svg viewBox="0 0 64 178" aria-hidden="true"><use href="#doric"/></svg></button>
+        <button class="col" type="button" data-layer="5" aria-haspopup="dialog" aria-label="Read the full story of the Dream layer"><span class="glow"></span><svg viewBox="0 0 64 178" aria-hidden="true"><use href="#doric"/></svg></button>
       </div>
       <div class="stylobate"><i></i><i></i><i></i></div>
       <div class="stylo-note">στυλοβάτης — your repository, which everything above stands on</div>
@@ -514,25 +622,30 @@
           <span class="gr">ΑΙΣΘΗΣΙΣ</span><span class="nm">Perception</span>
           <p>Files, symbols, imports and call edges, extracted into a graph before a single line is touched.</p>
           <code>src/perception/graph-store.ts</code>
+          <button class="more" type="button" data-layer="0" aria-haspopup="dialog">Read on →</button>
         </div>
         <div class="layer">
           <span class="gr">ΠΑΡΟΝ</span><span class="nm">Context</span>
           <p>The working window — anchor, fact-log, tail. When it fills it is compacted, never blindly truncated.</p>
           <code>src/agent/tiered-context.ts</code>
+          <button class="more" type="button" data-layer="1" aria-haspopup="dialog">Read on →</button>
         </div>
         <div class="layer">
           <span class="gr">ΛΟΓΟΣ</span><span class="nm">Session</span>
           <p>Every turn of the task in progress, written to disk as it happens, and picked back up with <em>--resume</em>.</p>
           <code>src/agent/session-store.ts</code>
+          <button class="more" type="button" data-layer="2" aria-haspopup="dialog">Read on →</button>
         </div>
         <div class="layer">
           <span class="gr">ΤΑΥΤΟΤΗΣ</span><span class="nm">Identity</span>
           <p>Durable facts that outlive the task. One canonical store, read by the CLI and the bot alike.</p>
           <code>src/agent/unified-memory.ts</code>
+          <button class="more" type="button" data-layer="3" aria-haspopup="dialog">Read on →</button>
         </div>
         <div class="layer">
           <span class="gr">ΕΠΕΙΣΟΔΙΑ</span><span class="nm">Episodes</span>
           <p>Each finished task captured whole: what was asked, what was tried, and what actually worked.</p>
+          <button class="more" type="button" data-layer="4" aria-haspopup="dialog">Read on →</button>
           <code>src/archimedes/episode-capture.ts</code>
         </div>
         <div class="layer">
@@ -587,7 +700,7 @@
 <div class="meander" aria-hidden="true"></div>
 
 <section class="band">
-  <img src="athos-cliff.svg" alt="Watercolour of Byzantine monasteries perched on the sheer cliffs of the Holy Mountain above the Aegean" loading="lazy">
+  <img src="athos-cliff.jpg" width="1536" height="1024" alt="Byzantine monasteries built out on the sheer cliffs of the Holy Mountain, the Aegean below them at sunset" loading="lazy">
   <div class="band-inner">
     <div class="label rv">05 — Persistence</div>
     <h2 class="rv d1">Twenty houses on one mountain.<span class="sub">and every one of them keeps its own library</span></h2>
@@ -626,6 +739,33 @@
   </div>
 </section>
 
+<section class="light" id="droid">
+  <div class="widest">
+    <div class="label rv">07 — On the move</div>
+    <h2 class="rv d1">Aura Droid.<span class="sub">the same agent, carried in a pocket</span></h2>
+    <p class="body-text rv d2">A temple is not a portable thing, and neither, usually, is a coding agent — it lives on the machine with the repository on it. <strong>Aura Droid is the official Android client:</strong> it talks to your Aura instance, local or remote, and gives you the whole conversation on a phone.</p>
+    <div class="droid rv d3">
+      <div class="shots">
+        <figure><img src="droid-sessions.jpg" width="450" height="1000" alt="Aura Droid session list on an Android phone" loading="lazy"><figcaption>Sessions — pin, archive, resume</figcaption></figure>
+        <figure><img src="droid-chat.jpg" width="450" height="1000" alt="A conversation thread in the Aura Droid Android app" loading="lazy"><figcaption>The thread, with markdown and code</figcaption></figure>
+        <figure><img src="droid-memory.jpg" width="450" height="1000" alt="The memory screen of the Aura Droid Android app" loading="lazy"><figcaption>Memory — the six layers, on the phone</figcaption></figure>
+      </div>
+      <div class="droid-notes">
+        <div class="rowlist light">
+          <div class="r"><code>approval</code><span class="d">Ask on every action, or auto-approve.</span></div>
+          <div class="r"><code>sandbox-out</code><span class="d">Work past the app’s sandbox, on your say-so.</span></div>
+          <div class="r"><code>modes</code><span class="d">Coder, Gazelle and Architect.</span></div>
+          <div class="r"><code>sessions</code><span class="d">Pin, archive and resume, in a local database.</span></div>
+        </div>
+        <p class="body-text rv" style="margin-top:1.4rem">Kotlin throughout, Jetpack Compose and Material 3, Hilt for injection, Room for the session store, coroutines and flow underneath. Android 8.0 and up. Point it at <code class="inline">http://localhost:8080/</code> or at a server, set a key, and it is the same loop — read, plan, execute, verify, report — on a smaller screen.</p>
+        <div style="margin-top:1.6rem">
+          <a class="btn" href="https://github.com/DusanCar-sudo/aura-droid" target="_blank" rel="noopener">Aura Droid on GitHub →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="stone">
   <div class="metopes">
     <div class="metope rv"><div class="v" data-count="6">0</div><div class="l">Memory layers</div></div>
@@ -635,9 +775,10 @@
   </div>
 </section>
 
-<section class="light" id="install" style="text-align:center">
+<section class="light closing" id="install" style="text-align:center">
+  <img src="temple-dusk.jpg" width="1536" height="1024" alt="A Greek temple above the sea in late golden light" loading="lazy">
   <div style="max-width:48rem;margin:0 auto">
-    <div class="label rv" style="justify-content:center">07 — Get started</div>
+    <div class="label rv" style="justify-content:center">08 — Get started</div>
     <h2 class="rv d1">Ready to verify?</h2>
     <p class="body-text rv d2" style="margin:0 auto 2.4rem">Install globally, set one API key, and give her a task in plain English.</p>
     <div class="install-box rv d3" onclick="copyInstall(this)">
@@ -657,10 +798,142 @@
   <p style="margin-top:.7rem">Built by <a href="https://lean-progress-iq.vercel.app" target="_blank" rel="noopener">Lean Progress IQ</a> · <a href="https://github.com/milodule3-debug/aura-code" target="_blank" rel="noopener">Source</a> · <a href="aura-windows-manual.html">Windows Manual</a> · MIT licensed</p>
 </footer>
 
+<div class="scrim" id="scrim" role="dialog" aria-modal="true" aria-labelledby="readingName" hidden>
+  <article class="reading" id="reading">
+    <button class="close" type="button" id="readingClose" aria-label="Close">✕</button>
+    <span class="gr" id="readingGr"></span>
+    <h3 id="readingName"></h3>
+    <div class="src" id="readingSrc"></div>
+    <div id="readingBody"></div>
+    <div class="nav">
+      <button type="button" id="readingPrev">← Previous</button>
+      <span class="idx" id="readingIdx"></span>
+      <button type="button" id="readingNext">Next →</button>
+    </div>
+  </article>
+</div>
+
 <script>
 (function(){
   'use strict';
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ————— the six readings, perception through dream —————
+     Every claim below is drawn from the file named at the top of the card;
+     if the code changes, the card is wrong and should be changed with it. */
+  var LAYERS = [
+    { gr:'ΑΙΣΘΗΣΙΣ', name:'Perception', src:'src/perception/graph-store.ts · src/perception/types.ts',
+      lead:'Before she edits anything, she builds a picture of what she is standing in.',
+      body:[
+        'A <strong>ProjectPerception</strong> is a typed graph of your repository. Its nodes are modules, files, concepts, constraints, decisions and trajectories; its edges each carry a named relationship and a weight. It is not a file listing — it is a description of how the parts hold together.',
+        'It records more than structure. The snapshot also carries <em>trajectory</em> — the project’s vision, what is deprecated, what is in progress, what is planned — and <em>constraints</em>: read-only paths, strict rules, risk areas, and per-module test coverage rated high, medium or low.',
+        'The snapshot is written to <code>.aura/perception.json</code> inside your project, and written <strong>atomically</strong> — to a temporary file, then renamed — so a crash never leaves half a picture behind for the next run to trust.',
+        'It is allowed to go stale on purpose. Anything older than an hour is re-extracted rather than believed. A month-old map of a codebase is worse than no map, because you act on it.',
+        'And it is queried, not merely stored: <code>dependencies</code>, <code>impact</code>, <code>constraints</code>, <code>trajectory</code>, <code>risk</code> and <code>related</code> each return the matching sub-graph plus a written summary.'
+      ]},
+    { gr:'ΠΑΡΟΝ', name:'Context', src:'src/agent/tiered-context.ts',
+      lead:'The working window. When it fills, something has to go — the question is what, and how honestly.',
+      body:[
+        'Three tiers. The <strong>ANCHOR</strong> is <code>history[0]</code>, the original task: never touched, never summarized, never aged out. The <strong>TAIL</strong> is the most recent turns, kept verbatim. The <strong>FACT LOG</strong> is everything in between, reduced to one to three bullet facts per turn — a file changed, a decision made, a value set, a command run and what it returned.',
+        'The fact log is strictly <strong>append-only</strong>. Each compaction pass asks the summary model to bullet-ize only the turns that have newly aged out, and appends them. It never re-summarizes what is already written down. That is not tidiness: it keeps the rendered block a stable prefix followed by a new suffix, which is the only reason a cache breakpoint placed after it actually hits.',
+        'Summarization runs on a separate cheap, fast model — not the session’s main one — so the compaction pass does not eat the savings it exists to create.',
+        'It ships gated behind <code>AURA_CONTEXT_STRATEGY=tiered</code> so it can be A/B-compared against the default escalating-recap strategy rather than replacing it silently. Both fire at the same trigger and keep the same amount of raw recent context. The only variable under test is what happens to the middle.'
+      ]},
+    { gr:'ΛΟΓΟΣ', name:'Session', src:'src/agent/session-store.ts',
+      lead:'The account of the task in progress — and what it cost.',
+      body:[
+        'A <strong>ChatSession</strong> is an id, a title, timestamps, a version and the full history. It is written to disk as the work happens, and <code>--resume</code> picks it back up. It is the thing that lets a task survive a closed terminal.',
+        'It also carries real <strong>usage</strong>: input, output, cached and cache-creation tokens, and cost in US dollars — one entry per provider API call, oldest first, across every run ever saved into that session.',
+        'Those numbers come straight from the provider’s API response. <strong>They are never estimated from the text.</strong> Cost is computed from the same pricing table <code>/stats</code> reads, so the figure she reports and the figure you are billed are the same figure.',
+        'It is written atomically like every other store here, and it deliberately does not import the loop. The thing that keeps the record never depends on the thing being recorded.'
+      ]},
+    { gr:'ΤΑΥΤΟΤΗΣ', name:'Identity', src:'src/agent/unified-memory.ts · src/agent/memory-consolidate.ts',
+      lead:'The facts that outlive the task — and what to do when two of them disagree.',
+      body:[
+        'Aura’s memory used to live in three disconnected places: key-value identity under <code>~/.aura/memory/</code>, episodes and dreams, and chat history. A fact saved by one surface never reached the other. The CLI and the Telegram bot each knew things the other did not.',
+        'Consolidation merged eight overlapping namespaces into two. <code>identity.json</code> holds global identity and facts and is prompt-visible everywhere; <code>project.json</code> holds machine and project state that is not identity — paths, recovery notes, service state.',
+        'The migration is idempotent, and it backs the originals up to <code>~/.aura/memory/.pre-unify-&lt;ts&gt;/</code> before it touches anything.',
+        'Where two namespaces disagreed about the same key, the values are <strong>preserved as a CONFLICT entry</strong> rather than a winner being picked quietly. This is the important part. Auto-dedupe that guesses is exactly how a memory system becomes confidently wrong, and the wrongness is invisible because the losing value is gone.',
+        'The read path is defensive by design: any missing or corrupt file is skipped rather than thrown on, and the whole block is length-capped so identity can never quietly bloat a prompt.'
+      ]},
+    { gr:'ΕΠΕΙΣΟΔΙΑ', name:'Episodes', src:'src/archimedes/episode-capture.ts · src/archimedes/types.ts',
+      lead:'Every finished task, kept whole — including the ones that went badly.',
+      body:[
+        'An <strong>Episode</strong> records the task, the project root, the timestamp, whether the local model was attempted, whether it succeeded, what it produced, and which large model had to be called in when it did not.',
+        'Episodes are stored under <code>~/.aura/episodes/{projectHash}/</code>, where the hash is derived from the project root — so competence is measured <strong>per project, not globally</strong>. What she is reliably good at in one repository tells you nothing about another, and pretending otherwise is how an agent talks itself into a mistake.',
+        'From these, <code>getEpisodeStats</code> computes the totals: local-model successes, local-model failures, how often a large model had to intervene, and whether there is yet enough signal to fine-tune.',
+        'Competence is a ratio over attempts with a floor beneath it — by default 0.7 across at least three attempts — plus an <em>epsilon probe rate</em>, so a small fraction of the time she re-tries a kind of task she had written off. A system that never revisits its own verdicts cannot notice it has improved.',
+        'This is the layer that makes the sixth principle literally true rather than decorative: every failure is training data.'
+      ]},
+    { gr:'ΟΝΕΙΡΟΣ', name:'Dream', src:'src/dream/dream.ts · src/dream/reconcile.ts · src/dream/okf.ts',
+      lead:'A day of work, reduced overnight to the part worth carrying forward.',
+      body:[
+        'Dream spends <strong>exactly one LLM call</strong>. It reads the day’s episodes and writes a dated dream file. That is the entire model budget for the layer.',
+        'Reconciliation — which runs across every dream that exists — is pure statistics. Confidence is a literal ratio, <strong>never a model’s guess about its own certainty</strong>. Asking a model how sure it is produces a number; it does not produce evidence.',
+        'Six verdicts, and they are the interesting part. <em>KEEP</em>: a unique, uncontested claim. <em>STRENGTHEN</em>: the same claim recurred, so confidence rises. <em>MERGE</em>: two related claims become one. <em>SUPERSEDE</em>: a newer claim replaces an older one. <em>DROP</em>: a duplicate or something now obsolete. And <em>CONFLICT</em>: two claims contradict each other — <strong>both are surfaced, neither is resolved.</strong>',
+        'That last verdict is the design. A memory system that always produces one tidy answer is a system that has learned to hide its contradictions from you, and it will keep doing so right up until the contradiction matters.',
+        'The output is <code>.reconciled.md</code>, injected into the system prompt for her own use — and a portable OKF knowledge bundle under <code>knowledge/</code>, so the same understanding can be read by another agent, another tool, or a person who does not have her installed.'
+      ]}
+  ];
+
+  /* ————— the reading: open one layer's full story ————— */
+  var scrim = document.getElementById('scrim');
+  var elGr = document.getElementById('readingGr'), elName = document.getElementById('readingName');
+  var elSrc = document.getElementById('readingSrc'), elBody = document.getElementById('readingBody');
+  var elIdx = document.getElementById('readingIdx');
+  var btnPrev = document.getElementById('readingPrev'), btnNext = document.getElementById('readingNext');
+  var current = -1, lastFocus = null;
+
+  function render(i){
+    var L = LAYERS[i]; if (!L) return;
+    current = i;
+    elGr.textContent = L.gr;
+    elName.textContent = L.name;
+    elSrc.textContent = L.src;
+    elBody.innerHTML = '<p class="lead">' + L.lead + '</p>' +
+      L.body.map(function(p){ return '<p>' + p + '</p>'; }).join('');
+    elIdx.textContent = (i + 1) + ' / ' + LAYERS.length;
+    btnPrev.disabled = i === 0;
+    btnNext.disabled = i === LAYERS.length - 1;
+    document.getElementById('reading').scrollTop = 0;
+  }
+  function openReading(i){
+    lastFocus = document.activeElement;
+    render(i);
+    scrim.hidden = false;
+    scrim.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('readingClose').focus();
+  }
+  function closeReading(){
+    scrim.classList.remove('open');
+    scrim.hidden = true;
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    current = -1;
+  }
+  document.querySelectorAll('[data-layer]').forEach(function(el){
+    el.addEventListener('click', function(){ openReading(+el.getAttribute('data-layer')); });
+  });
+  document.getElementById('readingClose').addEventListener('click', closeReading);
+  btnPrev.addEventListener('click', function(){ if (current > 0) render(current - 1); });
+  btnNext.addEventListener('click', function(){ if (current < LAYERS.length - 1) render(current + 1); });
+  /* a click on the scrim itself closes; a click inside the panel must not */
+  scrim.addEventListener('click', function(e){ if (e.target === scrim) closeReading(); });
+  document.addEventListener('keydown', function(e){
+    if (scrim.hidden) return;
+    if (e.key === 'Escape') { closeReading(); return; }
+    if (e.key === 'ArrowLeft' && current > 0) render(current - 1);
+    if (e.key === 'ArrowRight' && current < LAYERS.length - 1) render(current + 1);
+    /* keep the tab ring inside the dialog while it is open */
+    if (e.key === 'Tab') {
+      var f = scrim.querySelectorAll('button:not(:disabled)');
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
 
   /* nav background on scroll */
   var nav = document.getElementById('topnav');
