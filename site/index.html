@@ -95,7 +95,13 @@
   .hero-art::after{content:"";position:absolute;inset:0;
     background:linear-gradient(97deg,var(--marble) 0%,rgba(251,246,234,.97) 26%,rgba(251,246,234,.72) 44%,rgba(251,246,234,.12) 62%,transparent 76%),
                linear-gradient(0deg,rgba(251,246,234,.92) 0%,transparent 34%)}
-  .hero-inner{position:relative;z-index:4;padding:11rem 7vw 8rem;max-width:60rem;width:100%}
+  /* max-width has to carry the padding too, or this border-box cap shrinks the
+     text column as the viewport grows — 60rem minus 14vw is 758px at 1440 but
+     only 602px at 2560, which is backwards. Adding the padding back keeps the
+     column a steady 60rem. container-type lets the title size itself against
+     this column rather than the viewport. */
+  .hero-inner{position:relative;z-index:4;padding:11rem 7vw 8rem;
+    max-width:calc(60rem + 14vw);width:100%;container-type:inline-size}
   .kicker{font-family:var(--mono);font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;
     color:var(--gold);margin-bottom:1.8rem;display:flex;align-items:center;gap:.9rem}
   .kicker::before{content:"";width:2.4rem;height:1px;background:var(--gold);display:inline-block}
@@ -107,9 +113,15 @@
      Three guards: it is allowed to wrap (no non-breaking space in the markup),
      the box hugs the text without exceeding the column, and a sliver of right
      padding covers ink that overhangs the final glyph's advance. */
-  h1{font-family:var(--inscr);font-weight:600;font-size:clamp(2.5rem,8vw,7rem);line-height:.96;
+  h1{font-family:var(--inscr);font-weight:600;line-height:.96;
     letter-spacing:.03em;margin-bottom:.4rem;
-    display:inline-block;max-width:100%;padding-right:.08em;
+    display:inline-block;max-width:100%;padding-right:.08em;white-space:nowrap;
+    /* fallback for browsers without container queries */
+    font-size:clamp(1.9rem,7vw,6rem);
+    /* 13% of the column: "AURA CODE" in Cinzel needs about 7.2x its font size,
+       so this leaves room to spare at every width and can never wrap or spill
+       out of its painted box, however the column is sized. */
+    font-size:min(7rem,13cqw);
     background:linear-gradient(100deg,var(--ink) 26%,#3d5f6f 44%,var(--aegean) 52%,#3d5f6f 60%,var(--ink) 78%);
     background-size:200% 100%;-webkit-background-clip:text;background-clip:text;
     color:transparent;-webkit-text-fill-color:transparent;
