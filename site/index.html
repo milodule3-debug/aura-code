@@ -99,11 +99,25 @@
   .kicker{font-family:var(--mono);font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;
     color:var(--gold);margin-bottom:1.8rem;display:flex;align-items:center;gap:.9rem}
   .kicker::before{content:"";width:2.4rem;height:1px;background:var(--gold);display:inline-block}
-  h1{font-family:var(--inscr);font-weight:600;font-size:clamp(3rem,8.5vw,7rem);line-height:.96;
-    letter-spacing:.03em;margin-bottom:.4rem;color:var(--ink);
+  /* These letters are painted by the gradient, not by `color`, so any glyph that
+     reaches past this element's background box gets painted with nothing at all
+     and the hero image shows straight through it — a half-missing letter rather
+     than an obviously clipped one. Cinzel sets lowercase as capitals and runs
+     much wider than any fallback, so the title can outgrow a narrow container.
+     Three guards: it is allowed to wrap (no non-breaking space in the markup),
+     the box hugs the text without exceeding the column, and a sliver of right
+     padding covers ink that overhangs the final glyph's advance. */
+  h1{font-family:var(--inscr);font-weight:600;font-size:clamp(2.5rem,8vw,7rem);line-height:.96;
+    letter-spacing:.03em;margin-bottom:.4rem;
+    display:inline-block;max-width:100%;padding-right:.08em;
     background:linear-gradient(100deg,var(--ink) 26%,#3d5f6f 44%,var(--aegean) 52%,#3d5f6f 60%,var(--ink) 78%);
-    background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+    background-size:200% 100%;-webkit-background-clip:text;background-clip:text;
+    color:transparent;-webkit-text-fill-color:transparent;
     animation:shimmer 11s linear infinite}
+  /* and if the technique is unavailable at all, the words stay readable */
+  @supports not ((-webkit-background-clip:text) or (background-clip:text)){
+    h1{color:var(--ink);-webkit-text-fill-color:currentColor}
+  }
   .greek{font-family:var(--serif);font-size:clamp(1.05rem,2vw,1.4rem);letter-spacing:.16em;
     color:var(--gold);margin-bottom:1.5rem}
   .tagline{font-family:var(--serif);font-style:italic;font-size:clamp(1.5rem,2.9vw,2.3rem);
@@ -539,7 +553,7 @@
   </div>
   <div class="hero-inner">
     <div class="kicker rv revealed">Autonomous Coding Agent</div>
-    <h1 class="rv revealed d1">Aura&nbsp;Code</h1>
+    <h1 class="rv revealed d1">Aura Code</h1>
     <p class="greek rv revealed d1">Οὐ πειρῶμαι, ἀλλ’ ἐλέγχω</p>
     <p class="tagline rv revealed d2">“I don’t try. I verify.<span class="cursor">▍</span>”</p>
     <p class="lede rv revealed d3">An open-source AI coding agent — <strong>built by agents, for agents</strong>. She reads your codebase, plans, executes, runs your tests, and reports exactly what she verified. Model-agnostic. MIT licensed.</p>
