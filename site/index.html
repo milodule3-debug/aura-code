@@ -397,6 +397,11 @@
     object-position:50% 42%;z-index:0}
   .plate::after{content:"";position:absolute;inset:0;z-index:1;
     background:radial-gradient(ellipse 60% 82% at 50% 50%,rgba(251,246,234,.9),rgba(251,246,234,.5) 60%,rgba(251,246,234,.16) 100%)}
+  /* The ΜΕΘΟΔΟΣ plate has to hold two things at once — the drawn plan on the
+     table and the arch that plan became — so it needs more height than the
+     default plate, and its window sits low enough to keep the table in. */
+  .plate.tall{min-height:min(72vh,620px)}
+  .plate.tall img{object-position:50% 88%}
   .plate-inner{position:relative;z-index:2;text-align:center;padding:3rem 7vw}
   .plate-inner .gr{font-family:var(--serif);font-size:clamp(1.5rem,3.4vw,2.4rem);
     letter-spacing:.34em;color:#5f4310;text-indent:.34em;
@@ -411,6 +416,30 @@
   .closing::after{content:"";position:absolute;inset:0;z-index:1;
     background:radial-gradient(ellipse 68% 74% at 50% 48%,rgba(251,246,234,.95),rgba(251,246,234,.86) 54%,rgba(251,246,234,.72) 100%)}
   .closing>div{position:relative;z-index:2}
+
+  /* The paragraph above this claims a temple front is hexastyle — six across.
+     Here are six real shafts in a row, and directly beneath them the same six
+     as her memory layers. Photograph, then diagram: the claim, then what she
+     builds out of it. Held to the temple's own 1030px so the two line up. */
+  .hexastyle{max-width:1030px;margin:2.8rem auto 0}
+  .hexastyle img{width:100%;height:auto;display:block;border-radius:2px;
+    box-shadow:0 18px 44px rgba(90,60,20,.16)}
+  .hexastyle figcaption{margin-top:1rem;text-align:center;font-family:var(--mono);
+    font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3)}
+
+  /* ————— the drafting hand —————
+     Every photograph on this page carries the same faint white construction
+     geometry over its sky: circles struck from a compass, a triangle, a
+     crosshair through the centre. That is the drawing the building came from,
+     left visible on top of the building. The built sections echo it so the
+     page and the photographs read as one surface rather than type sitting on
+     stock imagery. Warm ink rather than white — white is invisible on marble.
+     Large tile, very low opacity: texture, not pattern. */
+  .light:not(.closing)::before{content:"";position:absolute;inset:0;z-index:0;
+    pointer-events:none;opacity:.055;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='820' height='820'%3E%3Cg fill='none' stroke='%238a7245' stroke-width='1'%3E%3Ccircle cx='205' cy='225' r='138'/%3E%3Ccircle cx='205' cy='225' r='80'/%3E%3Cpath d='M67 363 L343 363 L205 124 Z'/%3E%3Cpath d='M205 44 L205 406 M25 225 L385 225'/%3E%3Ccircle cx='605' cy='585' r='162'/%3E%3Ccircle cx='605' cy='585' r='104'/%3E%3Cpath d='M605 380 L605 790 M400 585 L810 585'/%3E%3Cpath d='M475 692 L735 692 L605 467 Z'/%3E%3Cpath d='M0 0 L820 820 M820 0 L0 820'/%3E%3C/g%3E%3C/svg%3E");
+    background-size:820px 820px}
+  .wide,.widest{position:relative;z-index:1}
 
   /* ————— capability ————— */
   .twocol{display:grid;grid-template-columns:1fr 1fr;gap:2.4rem;align-items:start;margin-top:1.4rem}
@@ -491,8 +520,13 @@
   @media (max-width:880px){
     section{padding:5rem 7vw}
     .hero-inner{padding:9rem 7vw 6rem}
-    .hero-art img{object-position:72% 46%}
-    .hero-art::after{background:linear-gradient(180deg,rgba(251,246,234,.95) 0%,rgba(251,246,234,.92) 46%,rgba(251,246,234,.76) 64%,rgba(251,246,234,.28) 82%,rgba(251,246,234,.1) 100%)}
+    .hero-art img{object-position:66% 40%}
+    /* Narrow screens stack the type down the whole frame, so the veil cannot
+       simply fade out at the foot the way it did over the old picture's calm
+       water — this one has broken rock down there, and the mono stat line was
+       illegible on it. Hold marble at both ends and open it only through the
+       middle, where the colonnade is and no small type falls. */
+    .hero-art::after{background:linear-gradient(180deg,rgba(251,246,234,.95) 0%,rgba(251,246,234,.78) 34%,rgba(251,246,234,.62) 52%,rgba(251,246,234,.84) 72%,rgba(251,246,234,.96) 86%,var(--marble) 100%)}
     .twocol{grid-template-columns:1fr}
     .rowlist .d{text-align:left}
     .band{min-height:auto}
@@ -561,7 +595,7 @@
 
 <header class="hero" id="start">
   <div class="hero-art">
-    <img src="hero-temple.jpg" width="1408" height="768" alt="Watercolour of a Doric temple standing on a headland above the Aegean, a mountain range and open sea beyond it" fetchpriority="high">
+    <img src="hero-temple.jpg" width="1600" height="900" alt="A Doric temple standing on a headland above the Aegean, open sea and a mountain range beyond it, with faint geometric construction lines drawn across the sky" fetchpriority="high">
   </div>
   <div class="hero-inner">
     <div class="kicker rv revealed">Autonomous Coding Agent</div>
@@ -611,6 +645,11 @@
     <div class="label rv">02 — Memory</div>
     <h2 class="rv d1">Six columns hold the roof up.<span class="sub">ΜΝΗΜΗ — what she carries between one task and the next</span></h2>
     <p class="body-text rv d2">A Greek temple front is <strong>hexastyle</strong>: six columns across, each one carrying its share of the weight, none of them optional. Aura’s memory is built the same way. Six layers, each with a different half-life — from the graph she builds of your repository this second, to the lessons she still holds a month from now.</p>
+
+    <figure class="hexastyle rv d3">
+      <img src="colonnade.jpg" width="1600" height="800" alt="Six Ionic columns standing in a row on a stone terrace above the sea, with faint geometric construction lines drawn across the sky behind them" loading="lazy">
+      <figcaption>ἑξάστυλος — six across, and the roof stays up</figcaption>
+    </figure>
 
     <div class="temple rv d3">
       <div class="pediment"><span>ΜΝΗΜΗ</span></div>
@@ -681,6 +720,14 @@
         </div>
       </div>
     </div>
+  </div>
+</section>
+
+<section class="plate tall">
+  <img src="workshop.jpg" width="1600" height="900" alt="A marble drafting table above a Greek valley: a compass and straightedge resting on a drawn plan, and beside it the arch that plan became, built in stone" loading="lazy">
+  <div class="plate-inner">
+    <span class="gr">ΜΕΘΟΔΟΣ</span>
+    <p>The drawing, and then the thing itself</p>
   </div>
 </section>
 
