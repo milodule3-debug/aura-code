@@ -193,7 +193,7 @@
   .rv.d4{transition-delay:.4s}.rv.d5{transition-delay:.5s}
 
   /* ————— identity cards ————— */
-  .grid3{margin-top:2.6rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  .grid3{margin-top:2.6rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));
     gap:1.4rem}
   .grid3>div{background:rgba(255,255,255,.62);border:1px solid rgba(176,135,60,.28);
     border-radius:4px;padding:2rem 1.8rem;transition:transform .4s,box-shadow .4s,background .4s;
@@ -250,7 +250,16 @@
     background:radial-gradient(ellipse,rgba(90,60,20,.3),transparent 70%);
     transition:opacity .45s}
   .col:hover::after{opacity:.5}
-  .col .glow{position:absolute;left:50%;top:16%;width:150px;height:150px;margin-left:-75px;
+  /* The glow was a flat 150px circle. A column is 171px wide on a full-width
+     colonnade but only ~46px on a 320px phone, so on the last column the
+     circle hung ~50px past the section and widened the whole document —
+     the page panned sideways and the viewport-width hero came up short of
+     the right edge. It is opacity:0 until hover and still took up layout.
+     Capping it at the column's own width means it can never reach past the
+     colonnade, and on desktop, where the column is wider than 150px, nothing
+     about it changes. */
+  .col .glow{position:absolute;left:50%;top:16%;width:min(150px,100%);aspect-ratio:1;
+    transform:translateX(-50%);
     border-radius:50%;pointer-events:none;opacity:0;transition:opacity .45s;
     background:radial-gradient(circle,rgba(255,206,120,.4),transparent 68%)}
   .col:hover .glow{opacity:1}
@@ -365,7 +374,7 @@
 
   /* ————— principles, cut into stelae ————— */
   .stelae{list-style:none;margin-top:2.2rem;display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.3rem}
+    grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:1.3rem}
   .stele{background:linear-gradient(165deg,#fdf9f0,var(--marble-2));
     border:1px solid rgba(154,126,80,.3);border-radius:4px 4px 2px 2px;padding:1.8rem 1.7rem 1.6rem;
     position:relative;transition:transform .4s,box-shadow .4s}
@@ -484,7 +493,7 @@
 
   /* ————— the frieze of numbers ————— */
   .metopes{max-width:66rem;margin:0 auto;display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0;
+    grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr));gap:0;
     border:1px solid rgba(154,126,80,.32);border-radius:3px;overflow:hidden}
   .metope{padding:2.4rem 1.4rem;text-align:center;background:rgba(255,255,255,.5);
     border-right:1px solid rgba(154,126,80,.24);transition:background .4s}
