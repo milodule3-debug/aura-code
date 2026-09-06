@@ -89,7 +89,14 @@
   header.hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:center;
     overflow:hidden;background:var(--marble);z-index:3}
   .hero-art{position:absolute;inset:0;z-index:0;overflow:hidden}
-  .hero-art img{position:absolute;inset:-4%;width:108%;height:108%;object-fit:cover;
+  /* max-width:none is load-bearing. The global img{max-width:100%} reset caps
+     this at the width of .hero-art, so the picture rendered 100% wide while
+     still sitting at left:-4% — hanging off the left and leaving 4% of bare
+     marble down the right edge (58px at 1440, 16px at 390). The 108%/-4% pair
+     only works if the cap is lifted; the extra 8% is the room the drift
+     animation pans into. */
+  .hero-art img{position:absolute;inset:-4%;width:108%;height:108%;max-width:none;
+    object-fit:cover;
     object-position:62% 52%;animation:drift 22s ease-in-out infinite;will-change:transform}
   /* the veil: marble poured across the left so the type has stone to sit on */
   .hero-art::after{content:"";position:absolute;inset:0;
@@ -391,7 +398,9 @@
   /* ————— full-bleed photographic bands ————— */
   .band{position:relative;padding:0;min-height:640px;display:flex;align-items:center;
     overflow:hidden;z-index:3}
-  .band img{position:absolute;inset:-3%;width:106%;height:106%;object-fit:cover;
+  /* same bleed, same reason for max-width:none as the hero — see above */
+  .band img{position:absolute;inset:-3%;width:106%;height:106%;max-width:none;
+    object-fit:cover;
     object-position:62% 50%;z-index:0}
   /* These photographs are far busier than a flat colour, so the veil has to
      hold longer across the type than a decorative wash would. */
