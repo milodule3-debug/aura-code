@@ -105,7 +105,23 @@ Defined in `src/tools/` and registered in `src/tools/index.ts`:
 `read_file`, `list_dir`, `edit_file`, `write_file`, `search_code`, `run_shell`,
 `run_tests`, `git` (status/diff), `spawn_task` (sub-agents), `web_fetch`,
 `web_search`, `browser`, `http_request`, `memory`, `clipboard`, `notify`,
-`image_read`, `email`, `calendar`, `telegram`, `whatsapp`, `cron`.
+`image_read`, `email`, `calendar`, `telegram`, `whatsapp`, `cron`, `mcp`,
+`blender` (headless 3D authoring/render/export), `game_scaffold` (playable
+game projects).
+
+### 3D and games
+
+`blender` drives a local Blender install through `blender --background
+--python`: model and light procedurally with `exec`/`script`, inspect a file
+with `scene`, produce stills or animations with `render`, and convert to
+`glb`/`gltf`/`fbx`/`obj`/`usd`/`stl` with `export`. Point Aura at a
+non-standard install with `AURA_BLENDER=/path/to/blender`.
+
+`game_scaffold` writes a complete, playable project — Three.js (3D browser),
+Godot 4 (3D native) or Phaser 3 (2D browser). The browser templates need no
+install and no build step. The Three.js template loads `assets/*.glb` when
+present and ships `blender/make_assets.py`, so the two tools form one
+pipeline: generate the art in Blender, reload the page, play it.
 
 ---
 

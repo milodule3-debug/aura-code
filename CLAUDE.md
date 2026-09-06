@@ -99,7 +99,25 @@ Defined in `src/tools/`, registered in `src/tools/index.ts`:
 `web_search`, `browser`, `http_request`, `memory`, `clipboard`, `notify`,
 `image_read`, `email`, `calendar`, `telegram`, `whatsapp`, `cron`, `mcp`
 (MCP client — connect/disconnect/list_tools/call_tool/list_servers; `connect`
-permission-gated like `run_shell`).
+permission-gated like `run_shell`), `blender`, `game_scaffold`.
+
+### 3D and game development
+
+- `blender` — headless Blender via `blender --background --python`.
+  Actions: `check`, `exec` (inline bpy Python), `script` (run a `.py`),
+  `scene` (report objects/materials/cameras), `render` (still or animation
+  range), `export` (`glb`/`gltf`/`fbx`/`obj`/`usd`/`stl`). All paths are
+  path-jailed to the project root; set `AURA_BLENDER` for a non-standard
+  install.
+- `game_scaffold` — writes a complete playable game: `three` (3D browser),
+  `godot` (Godot 4), `phaser` (2D browser). Browser templates run with
+  `python3 -m http.server`, no build step, no npm install.
+- The two compose: the Three.js template loads `assets/player.glb` /
+  `assets/level.glb` when they exist and ships `blender/make_assets.py`
+  to generate them, falling back to primitives when they don't.
+- Templates live in `src/tools/game-templates.ts`. A template must be a real
+  game (input, objective, win/lose), must run with no install step, and 3D
+  templates must accept drop-in glTF.
 
 ---
 

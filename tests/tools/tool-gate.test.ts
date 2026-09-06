@@ -70,15 +70,17 @@ describe('selectTools relevance gate', () => {
       notify: 'show a desktop notification',
       image_read: 'read this png image',
       clipboard: 'copy to clipboard',
+      blender: 'model a low-poly spaceship in blender and export a glb',
+      game_scaffold: 'build a playable 3d platformer game',
     };
     for (const [tool, task] of Object.entries(samples)) {
       expect(names(task), `trigger for ${tool}`).toContain(tool);
     }
   });
 
-  it('selected tools preserve TOOL_DEFINITIONS order and cover all 24 when everything triggers', () => {
+  it('selected tools preserve TOOL_DEFINITIONS order and cover all 26 when everything triggers', () => {
     const everything = Object.values({
-      t: 'telegram whatsapp email calendar cron browser http api screenshot clipboard notify image mcp connect spawn delegate web_search fetch memory remember url',
+      t: 'telegram whatsapp email calendar cron browser http api screenshot clipboard notify image mcp connect spawn delegate web_search fetch memory remember url blender 3d glb game platformer',
     }).join(' ');
     const sent = names(everything);
     expect(sent).toEqual(TOOL_DEFINITIONS.map(t => t.name));
