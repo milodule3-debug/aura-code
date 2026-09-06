@@ -50,7 +50,7 @@ So "keep the 3 most recent messages" is the *fallback* path, not the primary rul
 
 ### Tool primitives (P)
 
-27 tools, defined across `src/tools/*.ts` — 9 inline in `index.ts` (`read_file`, `list_dir`, `edit_file`, `write_file`, `search_code`, `run_shell`, `run_tests`, `git_status`, `git_diff`) plus the remainder as standalone definitions in their own files (`web_search`, `web_fetch`, `browser`, `memory`, `clipboard`, `notify`, `image_read`, `email`, `calendar`, `cron`, `audio_transcribe`, `youtube_transcript`, `mcp`, `telegram`, `whatsapp`, `gmail`, and others). Finite and enumerable — that's what makes P a real component of the tuple, not just "a big toolbox."
+29 tools, defined across `src/tools/*.ts` — 9 inline in `index.ts` (`read_file`, `list_dir`, `edit_file`, `write_file`, `search_code`, `run_shell`, `run_tests`, `git_status`, `git_diff`) plus the remainder as standalone definitions in their own files (`web_search`, `web_fetch`, `browser`, `memory`, `clipboard`, `notify`, `image_read`, `email`, `calendar`, `cron`, `audio_transcribe`, `youtube_transcript`, `mcp`, `telegram`, `whatsapp`, `gmail`, `blender`, `game_scaffold`, and others). Finite and enumerable — that's what makes P a real component of the tuple, not just "a big toolbox."
 
 ## Memory, Dreams, and Reconciliation
 

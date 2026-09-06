@@ -23,6 +23,8 @@ import { TELEGRAM_DEFINITION, telegramTool } from './telegram.js';
 import { WHATSAPP_DEFINITION, whatsAppTool } from './whatsapp.js';
 import { CRON_DEFINITION, cronTool } from './cron.js';
 import { MCP_DEFINITION, mcpTool } from './mcp.js';
+import { BLENDER_DEFINITION, blenderTool } from './blender.js';
+import { GAME_SCAFFOLD_DEFINITION, gameScaffold } from './game.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tool schemas (what the model sees)
@@ -166,6 +168,8 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   WHATSAPP_DEFINITION,
   CRON_DEFINITION,
   MCP_DEFINITION,
+  BLENDER_DEFINITION,
+  GAME_SCAFFOLD_DEFINITION,
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -191,6 +195,8 @@ const CONDITIONAL_TOOL_TRIGGERS: Record<string, RegExp> = {
   web_search:   /\b(web.?search|search|look up|find online|google|latest|current|news|recent)\b/i,
   memory:       /\b(remember|recall|memory|forget|note|store|what did|last time)\b/i,
   mcp:          /\b(mcp|tool server|external tool|connect to)\b/i,
+  blender:      /\b(blender|bpy|3d|3-d|glb|gltf|fbx|usdz?|low.?poly|voxel|mesh|sculpt|rigg?(ing|ed)|3d model|3d asset|3d scene|render (a|an|the)? ?(image|scene|frame|animation))\b/i,
+  game_scaffold: /\b(game|gamedev|game.?engine|playable|three\.?js|threejs|godot|phaser|unity|unreal|platformer|shooter|fps|rpg|player controller|level design|sprite)\b/i,
 };
 
 /** Text the gate scans: task + user/assistant messages (tool results excluded — huge and noisy). */
@@ -335,6 +341,8 @@ export async function executeTool(
       case 'whatsapp':     return whatsAppTool(input as any);
       case 'cron':         return cronTool(input as any);
       case 'mcp':          return mcpTool(input as any);
+      case 'blender':      return blenderTool(input as any, cwd);
+      case 'game_scaffold': return gameScaffold(input as any, cwd);
       default:             return `Error: Unknown tool '${name}'`;
     }
   } catch (e) {

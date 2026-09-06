@@ -15,7 +15,9 @@ export type Domain =
   | 'security'
   | 'devops'
   | 'testing'
-  | 'algorithms';
+  | 'algorithms'
+  | 'gamedev'
+  | 'graphics3d';
 
 const DOMAIN_SIGNALS: Record<Domain, string[]> = {
   frontend: [
@@ -46,6 +48,16 @@ const DOMAIN_SIGNALS: Record<Domain, string[]> = {
   algorithms: [
     'algorithm', 'performance', 'optimize', 'complexity', 'big o',
     'sort', 'search', 'cache', 'memoize', 'time limit', 'benchmark',
+  ],
+  gamedev: [
+    'game', 'gameplay', 'player', 'level', 'sprite', 'collision', 'physics',
+    'godot', 'phaser', 'unity', 'unreal', 'platformer', 'shooter', 'rpg',
+    'game loop', 'frame rate', 'hitbox', 'spawn', 'enemy', 'score',
+  ],
+  graphics3d: [
+    'blender', 'bpy', '3d', 'mesh', 'glb', 'gltf', 'fbx', 'shader', 'render',
+    'texture', 'material', 'uv', 'rig', 'skeleton', 'animation', 'camera',
+    'lighting', 'three.js', 'threejs', 'webgl', 'low-poly', 'polygon',
   ],
 };
 
@@ -91,6 +103,21 @@ const DOMAIN_EXPERTISE: Record<Domain, string> = {
 - Don't optimize prematurely — profile or reason about the actual bottleneck before restructuring.
 - Watch for accidental O(n²) from nested iteration over the same collection (e.g. .includes() inside a .map()).
 - Memoization/caching needs an explicit invalidation story, not just an add.`,
+
+  gamedev: `**Game development expertise:**
+- Ship something playable on the first pass: input, a win condition and a lose condition beat a prettier scene with no game in it. Use game_scaffold for the skeleton instead of hand-rolling a loop.
+- Make the update loop frame-rate independent — multiply by delta time, and clamp delta (a backgrounded tab returns a huge one that tunnels bodies through the floor).
+- Keep tunables (gravity, speed, jump height, spawn rates) in one config module, and keep level layout as data (arrays/scene files), not scattered literals — that is what makes iteration cheap.
+- Derive collision from the same data as the visible geometry, so art and physics cannot drift apart.
+- Verify by actually running it: serve the project and drive it with the browser tool, or run the engine headless. "It compiles" is not "it plays".`,
+
+  graphics3d: `**3D / Blender expertise:**
+- Blender work is headless Python: \`blender action=exec\` / \`action=script\` through the blender tool. Never assume a GUI, and never leave a script that only works when clicked.
+- Start any generation script from a known state (\`bpy.ops.wm.read_factory_settings(use_empty=True)\`) — Blender's default cube and leftover datablocks silently pollute exports.
+- Prefer procedural, re-runnable scripts over binary .blend edits: they diff, they review, and they regenerate the same asset every time.
+- glTF/GLB is the default interchange format for real-time engines; keep transforms applied, scale in metres, and Y-up handled by the exporter rather than by hand.
+- Watch poly count and texture size for anything destined for a game — check the result with \`blender action=scene\` instead of trusting the script.
+- Verify a render or export by inspecting the produced file (it exists, its size is sane, \`action=scene\` lists the objects you expect), not by the absence of an error.`,
 };
 
 /**
